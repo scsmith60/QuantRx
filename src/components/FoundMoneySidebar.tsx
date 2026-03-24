@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowUpRight, ShieldCheck, Zap, TrendingUp } from 'lucide-react';
+import { ArrowUpRight, ShieldCheck, TrendingUp } from 'lucide-react';
 
 interface FoundMoneySidebarProps {
   totalFound: number;
