@@ -74,13 +74,13 @@ export const fhirService = {
         id: 'pat-004',
         name: "Sarah Connor",
         dob: "1984-05-12",
-        payer: "Cigna",
-        orderHcpcs: "J1745",
-        orderNdc: "00069-0322-04", // Remicade
-        recHcpcs: "Q5103",
-        recNdc: "00069-0322-05",   // Inflectra
-        remittancePayout: 1750.00,
-        specialty: 'rheum',
+        payer: "Medicare B",
+        orderHcpcs: "J9035",
+        orderNdc: "00439-0110-01", // Avastin
+        recHcpcs: "Q5126",
+        recNdc: "70121-1754-01",   // Alymsys
+        remittancePayout: 3200.00,
+        specialty: 'oncology',
         isWhiteBagged: false,
         vaultId: 'v-6655'
       },
@@ -97,6 +97,34 @@ export const fhirService = {
         specialty: 'gi',
         isWhiteBagged: true,
         vaultId: 'v-5544'
+      },
+      {
+        id: 'pat-006',
+        name: "Alice Williams",
+        dob: "1972-08-22",
+        payer: "Aetna PPO",
+        orderHcpcs: "J9035",
+        orderNdc: "00439-0110-01", // Avastin
+        recHcpcs: "Q5126",
+        recNdc: "70121-1754-01",   // Alymsys
+        remittancePayout: 3150.00,
+        specialty: 'oncology',
+        isWhiteBagged: false,
+        vaultId: 'v-4433'
+      },
+      {
+        id: 'pat-007',
+        name: "James Taylor",
+        dob: "1958-12-05",
+        payer: "Aetna PPO",
+        orderHcpcs: "Q5126",
+        orderNdc: "70121-1754-01", // Alymsys
+        recHcpcs: "Q5126",
+        recNdc: "70121-1754-01",   
+        remittancePayout: 680.00,
+        specialty: 'oncology',
+        isWhiteBagged: false,
+        vaultId: 'v-3322'
       }
     ];
   }

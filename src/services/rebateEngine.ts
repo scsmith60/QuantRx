@@ -1,7 +1,4 @@
-/**
- * QuantRx Triple Latch Rebate Engine
- * Formula: Net Profit = (Payer Reimbursement) - (Wholesaler Price - GPO Rebates - MFG Rebates)
- */
+import { cmsService } from './cmsService';
 
 interface ContractTerms {
   wholesalerPrice: number;
@@ -11,30 +8,28 @@ interface ContractTerms {
 
 export const rebateEngine = {
   /**
-   * Calculates the True Net Cost of a drug based on practice-specific contracts.
+   * Calculates the True Net Cost of a drug by stacking all applicable rebates.
+   * Formula: Net = Wholesale - (Wholesale * GPO%) - (Wholesale * Dist%) - MFG Rebate
    */
-  calculateTrueNetCost(terms: ContractTerms): number {
-    const gpoSavings = (terms.wholesalerPrice * terms.gpoRebatePercent) / 100;
-    return terms.wholesalerPrice - gpoSavings - terms.mfgRebateAmount;
+  async calculateTrueNetCost(ndc: string): Promise<number> {
+    const contract = await cmsService.getVaultContract(ndc);
+    if (!contract) return 0;
+    
+    // 1. Start with Wholesaler Invoice Price from Vault
+    const wholesale = Number(contract.wholesaler_invoice_price);
+    
+    // 2. Apply Practice-Specific GPO Rebate
+    const gpoPct = Number(contract.gpo_rebate_percentage) || 0;
+    const gpoSavings = (wholesale * gpoPct) / 100;
+    
+    // 3. Apply Fixed Manufacturer Subvention/Rebate
+    const mfgRebate = Number(contract.mfg_rebate_amount) || 0;
+    
+    return wholesale - gpoSavings - mfgRebate;
   },
 
-  calculateMedicalMargin(aspPrice: number): number {
-    // 2026 Formula: ASP + 8%
-    return aspPrice * 1.08;
-  },
-
-  calculatePharmacyMargin(macPrice: number, dirFee: number): number {
-    // Formula: MAC - DIR Fee
-    return macPrice - dirFee;
-  },
-
-  /**
-   * Calculates the profit recovery amount (The Lift) for a switch.
-   * @param payerPayout The actual amount received from the 835 Remittance.
-   * @param netCost The calculated True Net Cost.
-   */
-  calculateRecoveryProfit(payerPayout: number, netCost: number): number {
-    return Math.max(0, payerPayout - netCost);
+  calculateMedicalMargin(reimbursement: number, netCost: number): number {
+    return Math.max(0, reimbursement - netCost);
   },
 
   /**

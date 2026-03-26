@@ -1,0 +1,31 @@
+{
+    "meta": {
+        "file_type": "EDI_835_MOCK",
+        "payer": "Aetna Commercial",
+        "date": "2026-03-25"
+    },
+    "remittances": [
+        {
+            "patient_id": "pat-002",
+            "patient_name": "Jane Smith",
+            "service_date": "2026-03-10",
+            "billed_hcpcs": "Q5111",
+            "billed_ndc": "00069-0322-03",
+            "billed_amount": 3800.00,
+            "allowed_amount": 2950.00,
+            "paid_amount": 2950.00,
+            "claim_status": "PROCESSED"
+        },
+        {
+            "patient_id": "pat-001",
+            "patient_name": "John Doe",
+            "service_date": "2026-03-12",
+            "billed_hcpcs": "J1447",
+            "billed_ndc": "00069-0322-02",
+            "billed_amount": 4100.00,
+            "allowed_amount": 3100.00,
+            "paid_amount": 3100.00,
+            "claim_status": "PROCESSED"
+        }
+    ]
+}

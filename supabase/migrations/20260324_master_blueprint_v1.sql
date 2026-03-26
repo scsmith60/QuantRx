@@ -62,5 +62,7 @@ values
     ('00069-0322-02', 'J1447', 'Armlupeg', 'Biosimilar', 'ASP+8', 'Oncology', 'SubQ'),
     ('00069-0322-03', 'Q5111', 'Udenyca', 'Biosimilar', 'ASP+8', 'Oncology', 'SubQ'),
     ('00069-0322-04', 'J1745', 'Remicade', 'Brand', 'ASP+6', 'Rheumatology', 'IV'),
-    ('00069-0322-05', 'Q5103', 'Inflectra', 'Biosimilar', 'ASP+8', 'Rheumatology', 'IV')
+    ('00069-0322-05', 'Q5103', 'Inflectra', 'Biosimilar', 'ASP+8', 'Rheumatology', 'IV'),
+    ('70121-1754-01', 'Q5126', 'Alymsys', 'Biosimilar', 'ASP+8', 'Oncology', 'IV'),
+    ('00439-0110-01', 'J9035', 'Avastin', 'Brand', 'ASP+6', 'Oncology', 'IV')
 on conflict (ndc_code) do update set brand_name = excluded.brand_name;

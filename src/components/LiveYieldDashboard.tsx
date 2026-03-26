@@ -1,8 +1,8 @@
-import React, { useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useRef, useState, useEffect } from 'react';
 import { Upload, FileCheck, Loader2 } from 'lucide-react';
-import { rebateEngine } from '../services/rebateEngine';
 import { claimIngestor } from '../services/claimIngestor';
+import { yieldService } from '../services/yieldService';
+import YieldRow from './YieldRow';
 
 interface LiveYieldDashboardProps {
   patients: any[];
@@ -10,17 +10,10 @@ interface LiveYieldDashboardProps {
 
 const LiveYieldDashboard: React.FC<LiveYieldDashboardProps> = ({ patients }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showOnlyActionable, setShowOnlyActionable] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [auditResult, setAuditResult] = useState<any>(null);
-
-  // Mock Contract Terms for Buy/Hidden latches
-  const mockContracts: Record<string, any> = {
-    '00069-0322-01': { wholesalerPrice: 3245.00, gpoRebatePercent: 2, mfgRebateAmount: 0 },
-    '00069-0322-02': { wholesalerPrice: 1150.00, gpoRebatePercent: 5, mfgRebateAmount: 50 },
-    '00069-0322-03': { wholesalerPrice: 1210.00, gpoRebatePercent: 4, mfgRebateAmount: 40 },
-    '00069-0322-04': { wholesalerPrice: 1850.00, gpoRebatePercent: 3, mfgRebateAmount: 0 },
-    '00069-0322-05': { wholesalerPrice: 980.00, gpoRebatePercent: 6, mfgRebateAmount: 120 },
-  };
+  const [yieldMap, setYieldMap] = useState<Record<string, any>>({});
 
   const handleAuditClick = () => {
     fileInputRef.current?.click();
@@ -36,6 +29,24 @@ const LiveYieldDashboard: React.FC<LiveYieldDashboardProps> = ({ patients }) => 
     setIsUploading(false);
   };
 
+  useEffect(() => {
+    const precalculateYields = async () => {
+      const results: Record<string, any> = {};
+      await Promise.all(patients.map(async (p) => {
+        results[p.id] = await yieldService.calculatePatientYield(p);
+      }));
+      setYieldMap(results);
+    };
+    precalculateYields();
+  }, [patients]);
+
+  const actionablePatients = patients.filter(p => {
+    if (!showOnlyActionable) return true;
+    const patientYield = yieldMap[p.id];
+    // strategy.potentialSavings is the correct property from calculatePatientYield output
+    return patientYield?.strategy?.potentialSavings > 0;
+  });
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -43,7 +54,16 @@ const LiveYieldDashboard: React.FC<LiveYieldDashboardProps> = ({ patients }) => 
           <h2 className="text-2xl font-bold tracking-tight mb-1 text-white">Profit Pulse Dashboard</h2>
           <p className="text-xs text-muted-foreground uppercase tracking-widest opacity-60">Triple Latch Analysis (Bill • Buy • Hidden)</p>
         </div>
-        <div className="flex space-x-2">
+        <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-3 bg-white/5 px-4 py-2 rounded-xl border border-white/10">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Show Only Actionable</span>
+                <button 
+                    onClick={() => setShowOnlyActionable(!showOnlyActionable)}
+                    className={`w-10 h-5 rounded-full relative transition-colors ${showOnlyActionable ? 'bg-primary' : 'bg-white/10'}`}
+                >
+                    <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${showOnlyActionable ? 'right-1' : 'left-1'}`} />
+                </button>
+            </div>
             <div className="px-3 py-1 bg-white/5 border border-white/10 rounded-lg flex items-center space-x-2">
                 <div className="w-2 h-2 rounded-full bg-primary" />
                 <span className="text-[10px] font-mono font-bold">REBATES SYNCED</span>
@@ -63,59 +83,9 @@ const LiveYieldDashboard: React.FC<LiveYieldDashboardProps> = ({ patients }) => 
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
-            {patients.map((p) => {
-              const recTerms = mockContracts[p.recNdc] || { wholesalerPrice: 0, gpoRebatePercent: 0, mfgRebateAmount: 0 };
-              const netCost = rebateEngine.calculateTrueNetCost(recTerms);
-              const recovery = rebateEngine.calculateRecoveryProfit(p.remittancePayout, netCost);
-
-              return (
-                <tr key={p.id} className="hover:bg-white/5 transition-colors group">
-                  <td className="px-6 py-5">
-                    <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 rounded bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xs">
-                            {p.id.split('-')[1]}
-                        </div>
-                        <div>
-                            <p className="text-sm font-semibold text-white">{p.name}</p>
-                            <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-tighter">NDC: {p.orderNdc} → <span className="text-[#39FF14]">{p.recNdc}</span></p>
-                        </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-5">
-                    <div className="flex flex-col">
-                        <span className="text-sm font-mono text-white">${p.remittancePayout.toLocaleString()}</span>
-                        <span className="text-[9px] text-muted-foreground uppercase">{p.payer}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-5">
-                    <div className="flex flex-col">
-                        <span className="text-sm font-mono text-white">${netCost.toLocaleString()}</span>
-                        <div className="flex items-center space-x-1 opacity-40">
-                            <span className="text-[8px] text-muted-foreground uppercase tracking-widest leading-none">GPO: {recTerms.gpoRebatePercent}% • MFG: ${recTerms.mfgRebateAmount}</span>
-                        </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-5">
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      className="inline-flex flex-col px-3 py-1 bg-[#39FF14]/10 border border-[#39FF14]/20 rounded-lg"
-                    >
-                        <span className="text-sm font-mono font-bold text-[#39FF14]">+${recovery.toLocaleString()}</span>
-                        <span className="text-[8px] text-[#39FF14] uppercase font-bold tracking-widest">Platform: ${rebateEngine.calculatePlatformFee(recovery).toFixed(2)}</span>
-                    </motion.div>
-                  </td>
-                  <td className="px-6 py-5 text-right">
-                    <motion.button 
-                      whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(57, 255, 20, 0.4)" }}
-                      whileTap={{ scale: 0.95 }}
-                      className="px-4 py-2 border border-[#39FF14] text-[#39FF14] hover:bg-[#39FF14] hover:text-black rounded-lg text-[10px] font-bold transition-all uppercase tracking-widest"
-                    >
-                      Process Switch
-                    </motion.button>
-                  </td>
-                </tr>
-              );
-            })}
+            {actionablePatients.map((p) => (
+                <YieldRow key={p.id} patient={p} />
+            ))}
           </tbody>
         </table>
       </div>

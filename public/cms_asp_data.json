@@ -1,0 +1,352 @@
+{
+  "J3357": {
+    "hcpcs": "J3357",
+    "description": "Stelara (Ustekinumab) - BRAND",
+    "aspPrice": 24500,
+    "prevASP": 24200,
+    "nextASP": 25100,
+    "reimbursementRate": 25970,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "Q51XX": {
+    "hcpcs": "Q51XX",
+    "description": "Ustekinumab (Biosimilar)",
+    "aspPrice": 21500,
+    "prevASP": 21500,
+    "nextASP": 21500,
+    "reimbursementRate": 23220,
+    "isBiosimilar": true,
+    "effectiveDate": "2026-07-01"
+  },
+  "J2506": {
+    "hcpcs": "J2506",
+    "description": "Pegfilgrastim (Udenyca) - BIOSIM",
+    "aspPrice": 3200,
+    "prevASP": 3100,
+    "nextASP": 3350,
+    "reimbursementRate": 3456,
+    "isBiosimilar": true,
+    "effectiveDate": "2026-07-01"
+  },
+  "J9400": {
+    "hcpcs": "J9400",
+    "description": "Ziv-aflibercept (Zaltrap) - BRAND",
+    "aspPrice": 11200,
+    "prevASP": 11200,
+    "nextASP": 10800,
+    "reimbursementRate": 11872,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "J1449": {
+    "hcpcs": "J1449",
+    "description": "Rolvedon (eflapegrastim-xnst) - BRAND",
+    "aspPrice": 3800,
+    "prevASP": 3750,
+    "nextASP": 3850,
+    "reimbursementRate": 4028,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "Q5126": {
+    "hcpcs": "Q5126",
+    "description": "Alymsys (bevacizumab-maly) - BIOSIM",
+    "aspPrice": 650,
+    "prevASP": 640,
+    "nextASP": 660,
+    "reimbursementRate": 702,
+    "isBiosimilar": true,
+    "effectiveDate": "2026-07-01"
+  },
+  "J9035": {
+    "hcpcs": "J9035",
+    "description": "Avastin (bevacizumab) - BRAND",
+    "aspPrice": 720,
+    "prevASP": 720,
+    "nextASP": 740,
+    "reimbursementRate": 763.2,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "J1745": {
+    "hcpcs": "J1745",
+    "description": "Remicade (infliximab) - BRAND",
+    "aspPrice": 850,
+    "prevASP": 840,
+    "nextASP": 870,
+    "reimbursementRate": 901,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "Q5103": {
+    "hcpcs": "Q5103",
+    "description": "Inflectra (infliximab-dyyb) - BIOSIM",
+    "aspPrice": 620,
+    "prevASP": 620,
+    "nextASP": 610,
+    "reimbursementRate": 669.6,
+    "isBiosimilar": true,
+    "effectiveDate": "2026-07-01"
+  },
+  "Q5104": {
+    "hcpcs": "Q5104",
+    "description": "Renflexis (infliximab-abda) - BIOSIM",
+    "aspPrice": 600,
+    "prevASP": 610,
+    "nextASP": 600,
+    "reimbursementRate": 648,
+    "isBiosimilar": true,
+    "effectiveDate": "2026-07-01"
+  },
+  "J9312": {
+    "hcpcs": "J9312",
+    "description": "Rituxan (rituximab) - BRAND",
+    "aspPrice": 950,
+    "prevASP": 940,
+    "nextASP": 980,
+    "reimbursementRate": 1007,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "Q5115": {
+    "hcpcs": "Q5115",
+    "description": "Truxima (rituximab-abbs) - BIOSIM",
+    "aspPrice": 720,
+    "prevASP": 730,
+    "nextASP": 710,
+    "reimbursementRate": 777.6,
+    "isBiosimilar": true,
+    "effectiveDate": "2026-07-01"
+  },
+  "J9271": {
+    "hcpcs": "J9271",
+    "description": "Keytruda (pembrolizumab) - BRAND",
+    "aspPrice": 5200,
+    "prevASP": 5150,
+    "nextASP": 5300,
+    "reimbursementRate": 5512,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "J9299": {
+    "hcpcs": "J9299",
+    "description": "Opdivo (nivolumab) - BRAND",
+    "aspPrice": 2800,
+    "prevASP": 2780,
+    "nextASP": 2850,
+    "reimbursementRate": 2968,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "J9047": {
+    "hcpcs": "J9047",
+    "description": "Kyprolis (carfilzomib) - BRAND",
+    "aspPrice": 1800,
+    "prevASP": 1750,
+    "nextASP": 1850,
+    "reimbursementRate": 1908,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "J9173": {
+    "hcpcs": "J9173",
+    "description": "Imfinzi (durvalumab) - BRAND",
+    "aspPrice": 3500,
+    "prevASP": 3450,
+    "nextASP": 3600,
+    "reimbursementRate": 3710,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "J0129": {
+    "hcpcs": "J0129",
+    "description": "Orencia (abatacept) - BRAND",
+    "aspPrice": 1200,
+    "prevASP": 1180,
+    "nextASP": 1250,
+    "reimbursementRate": 1272,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "J0517": {
+    "hcpcs": "J0517",
+    "description": "Fasenra (benralizumab) - BRAND",
+    "aspPrice": 4500,
+    "prevASP": 4400,
+    "nextASP": 4600,
+    "reimbursementRate": 4770,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "J0585": {
+    "hcpcs": "J0585",
+    "description": "Botox (onabotulinumtoxinA) - BRAND",
+    "aspPrice": 600,
+    "prevASP": 590,
+    "nextASP": 620,
+    "reimbursementRate": 636,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "J0897": {
+    "hcpcs": "J0897",
+    "description": "Prolia/Xgeva (denosumab) - BRAND",
+    "aspPrice": 1400,
+    "prevASP": 1380,
+    "nextASP": 1450,
+    "reimbursementRate": 1484,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "J1300": {
+    "hcpcs": "J1300",
+    "description": "Soliris (eculizumab) - BRAND",
+    "aspPrice": 6500,
+    "prevASP": 6450,
+    "nextASP": 6600,
+    "reimbursementRate": 6890,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "J1303": {
+    "hcpcs": "J1303",
+    "description": "Ultomiris (ravulizumab-cwvz) - BRAND",
+    "aspPrice": 7200,
+    "prevASP": 7100,
+    "nextASP": 7350,
+    "reimbursementRate": 7632,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "J1459": {
+    "hcpcs": "J1459",
+    "description": "Privigen (IVIG) - BRAND",
+    "aspPrice": 180,
+    "prevASP": 175,
+    "nextASP": 185,
+    "reimbursementRate": 190.8,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "J1561": {
+    "hcpcs": "J1561",
+    "description": "Gammaked/Gammexane (IVIG) - BRAND",
+    "aspPrice": 170,
+    "prevASP": 165,
+    "nextASP": 175,
+    "reimbursementRate": 180.2,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "J1569": {
+    "hcpcs": "J1569",
+    "description": "Gammagard (IVIG) - BRAND",
+    "aspPrice": 175,
+    "prevASP": 170,
+    "nextASP": 180,
+    "reimbursementRate": 185.5,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "J1602": {
+    "hcpcs": "J1602",
+    "description": "Simponi Aria (golimumab) - BRAND",
+    "aspPrice": 1100,
+    "prevASP": 1080,
+    "nextASP": 1150,
+    "reimbursementRate": 1166,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "J2323": {
+    "hcpcs": "J2323",
+    "description": "Tysabri (natalizumab) - BRAND",
+    "aspPrice": 2400,
+    "prevASP": 2350,
+    "nextASP": 2450,
+    "reimbursementRate": 2544,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "J2350": {
+    "hcpcs": "J2350",
+    "description": "Ocrevus (ocrelizumab) - BRAND",
+    "aspPrice": 18500,
+    "prevASP": 18200,
+    "nextASP": 18800,
+    "reimbursementRate": 19610,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "J2778": {
+    "hcpcs": "J2778",
+    "description": "Lucentis (ranibizumab) - BRAND",
+    "aspPrice": 1150,
+    "prevASP": 1120,
+    "nextASP": 1180,
+    "reimbursementRate": 1219,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "Q5124": {
+    "hcpcs": "Q5124",
+    "description": "Byooviz (ranibizumab-nuna) - BIOSIM",
+    "aspPrice": 850,
+    "prevASP": 840,
+    "nextASP": 860,
+    "reimbursementRate": 918,
+    "isBiosimilar": true,
+    "effectiveDate": "2026-07-01"
+  },
+  "J2796": {
+    "hcpcs": "J2796",
+    "description": "Zirabev (bevacizumab-bvzr) - BIOSIM",
+    "aspPrice": 630,
+    "prevASP": 630,
+    "nextASP": 620,
+    "reimbursementRate": 680.4,
+    "isBiosimilar": true,
+    "effectiveDate": "2026-07-01"
+  },
+  "J3380": {
+    "hcpcs": "J3380",
+    "description": "Entyvio (vedolizumab) - BRAND",
+    "aspPrice": 3400,
+    "prevASP": 3350,
+    "nextASP": 3500,
+    "reimbursementRate": 3604,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "J9228": {
+    "hcpcs": "J9228",
+    "description": "Yervoy (ipilimumab) - BRAND",
+    "aspPrice": 16000,
+    "prevASP": 15800,
+    "nextASP": 16500,
+    "reimbursementRate": 16960,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "J9305": {
+    "hcpcs": "J9305",
+    "description": "Alimta (pemetrexed) - BRAND",
+    "aspPrice": 2100,
+    "prevASP": 2050,
+    "nextASP": 2200,
+    "reimbursementRate": 2226,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  },
+  "J9308": {
+    "hcpcs": "J9308",
+    "description": "Cyramza (ramucirumab) - BRAND",
+    "aspPrice": 1300,
+    "prevASP": 1280,
+    "nextASP": 1350,
+    "reimbursementRate": 1378,
+    "isBiosimilar": false,
+    "effectiveDate": "2026-07-01"
+  }
+}

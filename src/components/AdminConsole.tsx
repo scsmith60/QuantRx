@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { LayoutGrid, FileText, Globe, Settings, Search } from 'lucide-react';
+import { LayoutGrid, FileText, Globe, Settings, Search, Database } from 'lucide-react';
 import GlobalMarginView from './GlobalMarginView.tsx';
 import GeneratedInvoices from './GeneratedInvoices.tsx';
+import IngesterView from './IngesterView.tsx';
 
 const AdminConsole: React.FC = () => {
   const [activeTab, setActiveTab] = useState('margin');
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex overflow-hidden">
+    <div className="h-screen bg-background text-foreground flex overflow-hidden">
       {/* Sidebar - Admin Navigation */}
       <aside className="w-64 border-r border-border flex flex-col glass-panel">
         <div className="p-6 flex items-center space-x-3 border-b border-border">
@@ -33,6 +34,13 @@ const AdminConsole: React.FC = () => {
           <button className="w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-secondary transition-colors">
             <LayoutGrid className="w-4 h-4" />
             <span>Practices</span>
+          </button>
+          <button 
+            onClick={() => setActiveTab('ingestion')}
+            className={`w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'ingestion' ? 'bg-primary/10 text-primary border border-primary/20' : 'text-muted-foreground hover:bg-secondary'}`}
+          >
+            <Database className="w-4 h-4 text-emerald-400" />
+            <span>CMS Data Ingestion</span>
           </button>
         </nav>
 
@@ -66,9 +74,10 @@ const AdminConsole: React.FC = () => {
         </header>
 
         {/* Console Content */}
-        <div className="flex-1 p-8 overflow-y-auto">
+        <div className="flex-1 p-8 overflow-y-auto w-full">
             {activeTab === 'margin' && <GlobalMarginView />}
             {activeTab === 'invoices' && <GeneratedInvoices />}
+            {activeTab === 'ingestion' && <IngesterView />}
         </div>
       </main>
     </div>

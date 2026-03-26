@@ -3,12 +3,20 @@ import { ArrowUpRight, ShieldCheck, TrendingUp } from 'lucide-react';
 
 interface FoundMoneySidebarProps {
   totalFound: number;
+  strategyFees: number;
   patients: any[];
 }
 
-const FoundMoneySidebar: React.FC<FoundMoneySidebarProps> = ({ totalFound, patients }) => {
+const FoundMoneySidebar: React.FC<FoundMoneySidebarProps> = ({ totalFound, strategyFees, patients }) => {
   return (
     <aside className="w-96 border-l border-border glass-panel flex flex-col">
+      <div className="p-6 border-b border-border bg-primary/5">
+        <h2 className="text-[10px] font-bold text-primary uppercase tracking-widest mb-1 pointer-events-none">Yield Optimization</h2>
+        <div className="flex items-center justify-between">
+            <p className="text-2xl font-mono font-bold text-white">${strategyFees.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+            <span className="text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold">15% FEE</span>
+        </div>
+      </div>
       <div className="p-6 border-b border-border">
         <h2 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4">Live Attribution</h2>
         <div className="flex items-end justify-between">
@@ -29,8 +37,8 @@ const FoundMoneySidebar: React.FC<FoundMoneySidebarProps> = ({ totalFound, patie
             {patients.slice(0, 4).map((p) => (
               <div key={p.id} className="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-primary/50 transition-all cursor-pointer group relative overflow-hidden">
                 <div className="flex justify-between items-start mb-2">
-                  <span className="text-[10px] font-medium text-white/50 lowercase">pat: {p.id.split('-')[1]}</span>
-                  <span className="text-xs font-bold text-primary">+$412.50</span>
+                  <span className="text-[10px] font-medium text-white/50 lowercase">pat: {p.id?.includes('-') ? p.id.split('-')[1] : p.id?.substring(0, 5) || '???'}</span>
+                  <span className="text-xs font-bold text-primary">+{p.lastYield || '$412.50'}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-xs font-bold font-mono">
                   <span className="text-muted-foreground">{p.orderHcpcs}</span>

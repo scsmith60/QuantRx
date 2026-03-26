@@ -1,14 +1,37 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Shield, Lock, CheckCircle, Fingerprint, Mail, ArrowRight } from 'lucide-react';
+import { supabase } from '../services/cmsService';
 
 interface LoginProps {
   onLogin: () => void;
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [emailFocus, setEmailFocus] = useState(false);
   const [passFocus, setPassFocus] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (authError) {
+      setError(authError.message);
+      setLoading(false);
+    } else {
+      onLogin();
+    }
+  };
 
   return (
     <div className="flex h-screen w-full bg-[#020204] overflow-hidden font-sans">
@@ -29,10 +52,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             {[...Array(8)].map((_, i) => (
               <motion.path
                 key={i}
-                d={`M 0 ${200 + i * 80} Q 250 ${150 + i * 80}, 500 ${200 + i * 80} T 1000 ${200 + i * 80}`}
-                stroke="url(#waveGrad)"
-                strokeWidth="2"
-                fill="none"
+                initial={{ d: `M 0 ${200 + i * 80} Q 250 ${150 + i * 80}, 500 ${200 + i * 80} T 1000 ${200 + i * 80}` }}
                 animate={{
                   d: [
                     `M 0 ${200 + i * 80} Q 250 ${150 + i * 80}, 500 ${200 + i * 80} T 1000 ${200 + i * 80}`,
@@ -40,6 +60,9 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     `M 0 ${200 + i * 80} Q 250 ${150 + i * 80}, 500 ${200 + i * 80} T 1000 ${200 + i * 80}`
                   ]
                 }}
+                stroke="url(#waveGrad)"
+                strokeWidth="2"
+                fill="none"
                 transition={{
                   duration: 5 + i,
                   repeat: Infinity,
@@ -90,7 +113,16 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 <h1 className="text-2xl font-bold tracking-tight text-white">QuantRX <span className="text-primary">Vault</span></h1>
             </div>
 
-            <div className="space-y-6">
+            <form 
+              onSubmit={handleSubmit}
+              className="space-y-6"
+            >
+              {error && (
+                <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-xs text-center animate-pulse">
+                  {error}
+                </div>
+              )}
+
               <div>
                 <label className="block text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">Institutional ID</label>
                 <div className={`relative transition-all duration-300 rounded-xl bg-white/5 border ${emailFocus ? 'border-[#39FF14] shadow-[0_0_15px_rgba(57,255,20,0.2)]' : 'border-white/10'}`}>
@@ -98,9 +130,13 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     <input 
                       type="email" 
                       placeholder="admin@practice.com"
+                      autoComplete="username"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       onFocus={() => setEmailFocus(true)}
                       onBlur={() => setEmailFocus(false)}
                       className="w-full bg-transparent border-none focus:ring-0 text-white p-4 pl-12 text-sm placeholder:text-white/20"
+                      required
                     />
                 </div>
               </div>
@@ -112,9 +148,13 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     <input 
                       type="password" 
                       placeholder="••••••••"
+                      autoComplete="current-password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       onFocus={() => setPassFocus(true)}
                       onBlur={() => setPassFocus(false)}
                       className="w-full bg-transparent border-none focus:ring-0 text-white p-4 pl-12 text-sm placeholder:text-white/20"
+                      required
                     />
                 </div>
               </div>
@@ -122,18 +162,22 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={onLogin}
-                className="w-full py-4 bg-primary text-primary-foreground rounded-xl font-bold flex items-center justify-center space-x-2 shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_40px_rgba(16,185,129,0.5)] transition-all group overflow-hidden relative"
+                type="submit"
+                disabled={loading}
+                className="w-full py-4 bg-primary text-primary-foreground rounded-xl font-bold flex items-center justify-center space-x-2 shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_40px_rgba(16,185,129,0.5)] transition-all group overflow-hidden relative disabled:opacity-50"
               >
                 <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out skew-x-12" />
-                <Fingerprint className="w-5 h-5" />
-                <span>BIOMETRIC SIGN-IN</span>
+                {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Fingerprint className="w-5 h-5" />}
+                <span>{loading ? 'AUTHENTICATING...' : 'BIOMETRIC SIGN-IN'}</span>
               </motion.button>
 
-              <button className="w-full text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground hover:text-white transition-colors">
+              <button 
+                type="button"
+                className="w-full text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground hover:text-white transition-colors"
+              >
                  Manual Credential Access
               </button>
-            </div>
+            </form>
 
             {/* Security Badges */}
             <div className="mt-12 pt-8 border-t border-white/5 flex items-center justify-between">

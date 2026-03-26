@@ -152,10 +152,10 @@ export const EliteExitWrapper: React.FC<{ children: React.ReactNode, show: boole
         <motion.div
           key="splash-container"
           initial={{ opacity: 1 }}
-          exit={{ opacity: 1 }}
+          exit={{ opacity: 0, pointerEvents: 'none' }}
           className="fixed inset-0 z-[100]"
         >
-          <SplashScreen onComplete={() => {}} /> {/* Timing handled in App.tsx */}
+          <SplashScreen onComplete={() => {}} /> 
         </motion.div>
       ) : (
         <motion.div

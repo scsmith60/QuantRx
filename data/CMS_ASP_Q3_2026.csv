@@ -1,0 +1,36 @@
+HCPCS,Description,ASP_Price,Prev_ASP,Next_ASP,Reimbursement_Rate,Is_Biosimilar
+J3357,Stelara (Ustekinumab) - BRAND,24500.00,24200.00,25100.00,25970.00,false
+Q51XX,Ustekinumab (Biosimilar),21500.00,21500.00,21500.00,23220.00,true
+J2506,Pegfilgrastim (Udenyca) - BIOSIM,3200.00,3100.00,3350.00,3456.00,true
+J9400,Ziv-aflibercept (Zaltrap) - BRAND,11200.00,11200.00,10800.00,11872.00,false
+J1449,Rolvedon (eflapegrastim-xnst) - BRAND,3800.00,3750.00,3850.00,4028.00,false
+Q5126,Alymsys (bevacizumab-maly) - BIOSIM,650.00,640.00,660.00,702.00,true
+J9035,Avastin (bevacizumab) - BRAND,720.00,720.00,740.00,763.20,false
+J1745,Remicade (infliximab) - BRAND,850.00,840.00,870.00,901.00,false
+Q5103,Inflectra (infliximab-dyyb) - BIOSIM,620.00,620.00,610.00,669.60,true
+Q5104,Renflexis (infliximab-abda) - BIOSIM,600.00,610.00,600.00,648.00,true
+J9312,Rituxan (rituximab) - BRAND,950.00,940.00,980.00,1007.00,false
+Q5115,Truxima (rituximab-abbs) - BIOSIM,720.00,730.00,710.00,777.60,true
+J9271,Keytruda (pembrolizumab) - BRAND,5200.00,5150.00,5300.00,5512.00,false
+J9299,Opdivo (nivolumab) - BRAND,2800.00,2780.00,2850.00,2968.00,false
+J9047,Kyprolis (carfilzomib) - BRAND,1800.00,1750.00,1850.00,1908.00,false
+J9173,Imfinzi (durvalumab) - BRAND,3500.00,3450.00,3600.00,3710.00,false
+J0129,Orencia (abatacept) - BRAND,1200.00,1180.00,1250.00,1272.00,false
+J0517,Fasenra (benralizumab) - BRAND,4500.00,4400.00,4600.00,4770.00,false
+J0585,Botox (onabotulinumtoxinA) - BRAND,600.00,590.00,620.00,636.00,false
+J0897,Prolia/Xgeva (denosumab) - BRAND,1400.00,1380.00,1450.00,1484.00,false
+J1300,Soliris (eculizumab) - BRAND,6500.00,6450.00,6600.00,6890.00,false
+J1303,Ultomiris (ravulizumab-cwvz) - BRAND,7200.00,7100.00,7350.00,7632.00,false
+J1459,Privigen (IVIG) - BRAND,180.00,175.00,185.00,190.80,false
+J1561,Gammaked/Gammexane (IVIG) - BRAND,170.00,165.00,175.00,180.20,false
+J1569,Gammagard (IVIG) - BRAND,175.00,170.00,180.00,185.50,false
+J1602,Simponi Aria (golimumab) - BRAND,1100.00,1080.00,1150.00,1166.00,false
+J2323,Tysabri (natalizumab) - BRAND,2400.00,2350.00,2450.00,2544.00,false
+J2350,Ocrevus (ocrelizumab) - BRAND,18500.00,18200.00,18800.00,19610.00,false
+J2778,Lucentis (ranibizumab) - BRAND,1150.00,1120.00,1180.00,1219.00,false
+Q5124,Byooviz (ranibizumab-nuna) - BIOSIM,850.00,840.00,860.00,918.00,true
+J2796,Zirabev (bevacizumab-bvzr) - BIOSIM,630.00,630.00,620.00,680.40,true
+J3380,Entyvio (vedolizumab) - BRAND,3400.00,3350.00,3500.00,3604.00,false
+J9228,Yervoy (ipilimumab) - BRAND,16000.00,15800.00,16500.00,16960.00,false
+J9305,Alimta (pemetrexed) - BRAND,2100.00,2050.00,2200.00,2226.00,false
+J9308,Cyramza (ramucirumab) - BRAND,1300.00,1280.00,1350.00,1378.00,false
