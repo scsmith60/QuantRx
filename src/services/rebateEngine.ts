@@ -1,11 +1,5 @@
 import { cmsService } from './cmsService';
 
-interface ContractTerms {
-  wholesalerPrice: number;
-  gpoRebatePercent: number;
-  mfgRebateAmount: number;
-}
-
 export const rebateEngine = {
   /**
    * Calculates the True Net Cost of a drug by stacking all applicable rebates.
