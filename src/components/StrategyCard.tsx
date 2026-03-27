@@ -1,13 +1,14 @@
 import { motion } from 'framer-motion';
-import { TrendingUp, ArrowRightLeft, Zap, ShieldCheck } from 'lucide-react';
+import { TrendingUp, ArrowRightLeft, Zap, ShieldCheck, X } from 'lucide-react';
 import type { StrategyOption } from '../services/yieldService';
 
 interface StrategyCardProps {
     strategy: StrategyOption;
     onExecute: (savings: number, actualQuantity?: number) => void;
+    onDismiss?: () => void;
 }
 
-const StrategyCard: React.FC<StrategyCardProps> = ({ strategy, onExecute }) => {
+const StrategyCard: React.FC<StrategyCardProps> = ({ strategy, onExecute, onDismiss }) => {
     if (strategy.type === 'NONE') return null;
 
     return (
@@ -26,9 +27,19 @@ const StrategyCard: React.FC<StrategyCardProps> = ({ strategy, onExecute }) => {
                         </div>
                         <span className="text-[10px] font-black tracking-widest text-white uppercase italic">{strategy.title}</span>
                     </div>
-                    <div className="flex flex-col items-end">
-                        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">Projected Savings</span>
-                        <span className="text-sm font-black text-primary font-mono tracking-tighter">${strategy.potentialSavings.toLocaleString()}</span>
+                    <div className="flex items-center space-x-4">
+                        <div className="flex flex-col items-end">
+                            <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">Projected Savings</span>
+                            <span className="text-sm font-black text-primary font-mono tracking-tighter">${strategy.potentialSavings.toLocaleString()}</span>
+                        </div>
+                        {onDismiss && (
+                            <button 
+                                onClick={onDismiss}
+                                className="p-1 hover:bg-white/10 rounded-full transition-colors text-muted-foreground hover:text-white"
+                            >
+                                <X size={14} />
+                            </button>
+                        )}
                     </div>
                 </div>
 
