@@ -1,4 +1,5 @@
 import FHIR from 'fhirclient';
+import { ehrService } from './ehrService';
 
 /**
  * QuantRx FHIR Service
@@ -10,6 +11,11 @@ export const fhirService = {
    * Initializes the FHIR client (SMART on FHIR Handshake)
    */
   async init() {
+    const config = ehrService.getConfig();
+    if (config) {
+        console.log(`[FHIR] Using saved bridge: ${config.vendorId} @ ${config.fhirBaseUrl}`);
+    }
+
     try {
       const client = await FHIR.oauth2.ready();
       console.log("[FHIR] Client ready:", client.patient.id);
