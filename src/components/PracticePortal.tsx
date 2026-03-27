@@ -16,6 +16,9 @@ import StrategyCard from './StrategyCard.tsx';
 import { cmsService } from '../services/cmsService';
 import NotificationsPopover from './NotificationsPopover.tsx';
 import type { Notification } from './NotificationsPopover.tsx';
+import TheMorningList from './TheMorningList.tsx';
+
+import { intelligenceService, type MarketAlert } from '../services/intelligenceService';
 
 
 const PracticePortal: React.FC = () => {
@@ -31,6 +34,7 @@ const PracticePortal: React.FC = () => {
   const [totalStrategyFees, setTotalStrategyFees] = useState(0);
   const [currentView, setCurrentView] = useState<'dashboard' | 'patients' | 'billing' | 'datacenter'>('dashboard');
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [marketAlerts, setMarketAlerts] = useState<MarketAlert[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([
     {
         id: '1',
@@ -62,13 +66,33 @@ const PracticePortal: React.FC = () => {
     const loadData = async () => {
       try {
         setIsSyncingCMS(true);
-        const [allPatients] = await Promise.all([
+        // Correctly handle 3 separate async sources
+        const [allPatients, _cmsData, alerts] = await Promise.all([
             fhirService.getMockSchedule(),
-            cmsService.fetchASPData()
+            cmsService.fetchASPData(),
+            intelligenceService.getMarketIntelligence()
         ]);
         
         setIsSyncingCMS(false);
         setLastSyncTime(new Date().toLocaleTimeString());
+        setMarketAlerts(alerts);
+
+        // Convert Market Alerts to Notifications for the Bell icon
+        const marketNotifications: Notification[] = alerts.map((a: MarketAlert) => ({
+           id: a.id,
+           type: a.type === 'patent_expiry' ? 'financial' : 'system',
+           title: a.title,
+           message: a.message,
+           timestamp: 'NEW',
+           isRead: false
+        }));
+        
+        setNotifications(prev => {
+            // Deduplicate by ID to prevent repeat alerts on re-renders
+            const existingIds = new Set(prev.map(n => n.id));
+            const uniqueNew = marketNotifications.filter(n => !existingIds.has(n.id));
+            return [...uniqueNew, ...prev];
+        });
         
         const filtered = (allPatients || []).filter((p: any) => p && p.specialty === activeSpecialty);
         setPatients(filtered);
@@ -203,6 +227,8 @@ const PracticePortal: React.FC = () => {
                 ) : (
                     <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
                         <div className="xl:col-span-3 space-y-8">
+                        {activeSpecialty === 'oncology' && <TheMorningList />}
+                        
                         <StrategyCard 
                             strategy={activeStrategy} 
                             onExecute={async (savings: number, qty?: number) => {
@@ -222,9 +248,25 @@ const PracticePortal: React.FC = () => {
                         <RecoveryGauge recovered={totalFoundMoney} potential={potentialTotal} />
                         <div className="glass-panel p-6 rounded-2xl border border-white/5 bg-gradient-to-br from-white/5 to-transparent">
                             <h4 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-4">Market Intelligence</h4>
-                            <p className="text-xs text-muted-foreground leading-relaxed">
-                                CMS ASP Rates for Q3 2026 have been synchronized. Distributor rebates for Biosimilar NDC classes updated to 2% flat.
-                            </p>
+                            <div className="space-y-4">
+                                {marketAlerts.length > 0 ? marketAlerts.slice(0, 3).map(alert => (
+                                    <div key={alert.id} className="space-y-1">
+                                        <div className="flex items-center space-x-2">
+                                            <div className={`w-1.5 h-1.5 rounded-full ${alert.severity === 'high' ? 'bg-[#FF3131]' : 'bg-primary'}`} />
+                                            <span className={`text-[9px] font-bold uppercase tracking-tight ${alert.severity === 'high' ? 'text-[#FF3131]' : 'text-primary'}`}>
+                                                {alert.title}
+                                            </span>
+                                        </div>
+                                        <p className="text-[11px] text-muted-foreground leading-relaxed">
+                                            {alert.message}
+                                        </p>
+                                    </div>
+                                )) : (
+                                    <p className="text-xs text-muted-foreground leading-relaxed">
+                                        CMS ASP Rates for Q3 2026 have been synchronized. No critical patent expirations detected in the next 30 days.
+                                    </p>
+                                )}
+                            </div>
                         </div>
                         </div>
                     </div>
