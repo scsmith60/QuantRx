@@ -36,36 +36,38 @@ export const fhirService = {
     return [
       { 
         id: 'pat-001', 
-        name: "John Doe", 
-        dob: "1978-05-12",
+        name: "Patient (Vault-9921)", 
+        dob: "1978-XX-XX",
         payer: "Medicare B", 
         orderHcpcs: "J2506", 
-        orderNdc: "00069-0322-01", // Neulasta
+        orderNdc: "00069-0322-01", 
         recHcpcs: "J1447", 
-        recNdc: "00069-0322-02",   // Armlupeg
-        remittancePayout: 3100.00, // The "Bill"
+        recNdc: "00069-0322-02",   
+        remittancePayout: 3100.00, 
         specialty: 'oncology',
         isWhiteBagged: false,
-        vaultId: 'v-9921'
+        vaultId: 'v-9921',
+        isDeidentified: true
       },
       { 
         id: 'pat-002', 
-        name: "Jane Smith", 
-        dob: "1985-11-20",
+        name: "Patient (Vault-8812)", 
+        dob: "1985-XX-XX",
         payer: "Aetna PPO", 
         orderHcpcs: "J2506", 
         orderNdc: "00069-0322-01",
         recHcpcs: "Q5111", 
-        recNdc: "00069-0322-03",   // Udenyca
+        recNdc: "00069-0322-03",   
         remittancePayout: 2950.00,
         specialty: 'oncology',
         isWhiteBagged: false,
-        vaultId: 'v-8812'
+        vaultId: 'v-8812',
+        isDeidentified: true
       },
       { 
         id: 'pat-003', 
-        name: "Robert Brown", 
-        dob: "1962-02-05",
+        name: "Patient (Vault-7734)", 
+        dob: "1962-XX-XX",
         payer: "UnitedHealth", 
         orderHcpcs: "J2506", 
         orderNdc: "00069-0322-01",
@@ -74,26 +76,28 @@ export const fhirService = {
         remittancePayout: 3050.00,
         specialty: 'oncology',
         isWhiteBagged: true,
-        vaultId: 'v-7734'
+        vaultId: 'v-7734',
+        isDeidentified: true
       },
       {
         id: 'pat-004',
-        name: "Sarah Connor",
-        dob: "1984-05-12",
+        name: "Patient (Vault-6655)",
+        dob: "1984-XX-XX",
         payer: "Medicare B",
         orderHcpcs: "J9035",
-        orderNdc: "00439-0110-01", // Avastin
+        orderNdc: "00439-0110-01", 
         recHcpcs: "Q5126",
-        recNdc: "70121-1754-01",   // Alymsys
+        recNdc: "70121-1754-01",   
         remittancePayout: 3200.00,
         specialty: 'oncology',
         isWhiteBagged: false,
-        vaultId: 'v-6655'
+        vaultId: 'v-6655',
+        isDeidentified: true
       },
       {
         id: 'pat-005',
-        name: "Michael Scott",
-        dob: "1964-03-15",
+        name: "Patient (Vault-5544)",
+        dob: "1964-XX-XX",
         payer: "Blue Shield",
         orderHcpcs: "J1745",
         orderNdc: "00069-0322-04",
@@ -102,35 +106,38 @@ export const fhirService = {
         remittancePayout: 1820.00,
         specialty: 'gi',
         isWhiteBagged: true,
-        vaultId: 'v-5544'
+        vaultId: 'v-5544',
+        isDeidentified: true
       },
       {
         id: 'pat-006',
-        name: "Alice Williams",
-        dob: "1972-08-22",
+        name: "Patient (Vault-4433)",
+        dob: "1972-XX-XX",
         payer: "Aetna PPO",
         orderHcpcs: "J9035",
-        orderNdc: "00439-0110-01", // Avastin
+        orderNdc: "00439-0110-01", 
         recHcpcs: "Q5126",
-        recNdc: "70121-1754-01",   // Alymsys
+        recNdc: "70121-1754-01",   
         remittancePayout: 3150.00,
         specialty: 'oncology',
         isWhiteBagged: false,
-        vaultId: 'v-4433'
+        vaultId: 'v-4433',
+        isDeidentified: true
       },
       {
         id: 'pat-007',
-        name: "James Taylor",
-        dob: "1958-12-05",
+        name: "Patient (Vault-3322)",
+        dob: "1958-XX-XX",
         payer: "Aetna PPO",
         orderHcpcs: "Q5126",
-        orderNdc: "70121-1754-01", // Alymsys
+        orderNdc: "70121-1754-01", 
         recHcpcs: "Q5126",
         recNdc: "70121-1754-01",   
         remittancePayout: 680.00,
         specialty: 'oncology',
         isWhiteBagged: false,
-        vaultId: 'v-3322'
+        vaultId: 'v-3322',
+        isDeidentified: true
       }
     ];
   }

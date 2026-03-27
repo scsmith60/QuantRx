@@ -12,6 +12,7 @@ const YieldRow: React.FC<YieldRowProps> = ({ patient: p }) => {
     const [strategy, setStrategy] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [netCost, setNetCost] = useState(0);
+    const [isRevealed, setIsRevealed] = useState(false);
 
     useEffect(() => {
         const fetchYieldData = async () => {
@@ -25,6 +26,11 @@ const YieldRow: React.FC<YieldRowProps> = ({ patient: p }) => {
     }, [p.orderHcpcs, p.orderNdc, p.remittancePayout]);
 
     const recovery = strategy?.potentialSavings || 0;
+
+    const handleReveal = () => {
+        setIsRevealed(true);
+        // In reality, this would trigger a local lookup via SMART on FHIR or a decrypter
+    };
 
     const handleExecute = async () => {
         if (!strategy || strategy.type === 'NONE') return;
@@ -51,7 +57,19 @@ const YieldRow: React.FC<YieldRowProps> = ({ patient: p }) => {
                         {p.id.split('-')[1]}
                     </div>
                     <div>
-                        <p className="text-sm font-semibold text-white">{p.name}</p>
+                        <div className="flex items-center space-x-2">
+                            <p className={`text-sm font-semibold ${isRevealed ? 'text-white' : 'text-primary/40 font-mono text-[10px]'}`}>
+                                {isRevealed ? (p.originalName || "Authorized View") : p.name}
+                            </p>
+                            {!isRevealed && p.isDeidentified && (
+                                <button 
+                                    onClick={handleReveal}
+                                    className="text-[8px] font-bold text-primary border border-primary/30 px-1.5 py-0.5 rounded hover:bg-primary/10 transition-colors uppercase tracking-widest"
+                                >
+                                    Reveal
+                                </button>
+                            )}
+                        </div>
                         <div className="flex items-center text-[10px] text-muted-foreground font-mono uppercase tracking-tighter">
                             <span>NDC: {p.orderNdc}</span>
                             {strategy?.type === 'SWITCH' && strategy?.data?.ndc && (
