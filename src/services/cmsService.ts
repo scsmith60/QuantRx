@@ -14,10 +14,15 @@ export interface CMSPriceRecord {
 
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL || 'https://mock.supabase.co').trim();
-export const supabaseKey = (import.meta.env.VITE_SUPABASE_ANON_KEY || 'mock-key').trim();
+const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL || '').trim();
+export const supabaseKey = (import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
+
+if (!supabaseUrl || !supabaseKey) {
+    console.error("[Supabase] Critical: VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY is missing from .env!");
+}
+
 export const supabase = createClient(supabaseUrl, supabaseKey, {
-    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
 });
 
 class CMSService {
