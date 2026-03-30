@@ -107,20 +107,37 @@ class YieldService {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const { error } = await supabase
-            .from('quant_billing')
+        // 1. Record the initial Attribution (Transaction)
+        const { error: attributionError } = await supabase
+            .from('quant_vault.attribution')
             .insert({
                 practice_id: user.id,
-                patient_id: patientId,
-                hcpcs_switched_from: fromHcpcs,
-                hcpcs_switched_to: toHcpcs,
-                net_lift_amount: netLift,
+                patient_id: patientId, // Note: This should be hashed in production
+                ndc_ordered: fromHcpcs,
+                ndc_recommended: toHcpcs,
+                net_profit_recovered: netLift,
                 quant_fee_15_percent: netLift * 0.15,
-                status: 'Unbilled'
+                status: 'Detected'
             });
 
-        if (error) {
-            console.error("[Yield] Error logging switch billing:", error);
+        if (attributionError) {
+            console.error("[Yield] Error logging switch attribution:", attributionError);
+        }
+
+        // 2. Enroll for life of drug (The "Annuity")
+        const { error: enrollmentError } = await supabase
+            .from('quant_vault.managed_therapies')
+            .upsert({
+                practice_id: user.id,
+                patient_id_hash: patientId,
+                hcpcs_recommended: toHcpcs,
+                original_ndc: fromHcpcs,
+                estimated_annual_lift: netLift * 12,
+                is_active: true
+            });
+
+        if (enrollmentError) {
+            console.error("[Yield] Error enrolling therapy:", enrollmentError);
         }
     }
 
@@ -153,6 +170,11 @@ class YieldService {
     getTotalStrategyFees(): number {
         return this.capturedFees;
     }
+
+    calculateAnnualizedYield(monthlyLift: number): number {
+        return monthlyLift * 12;
+    }
+
 
     /**
      * The "Unified Switch" Logic (The Algorithm)

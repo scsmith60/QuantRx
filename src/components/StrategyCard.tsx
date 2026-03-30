@@ -29,10 +29,19 @@ const StrategyCard: React.FC<StrategyCardProps> = ({ strategy, onExecute, onDism
                     </div>
                     <div className="flex items-center space-x-4">
                         <div className="flex flex-col items-end">
-                            <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">Projected Savings</span>
-                            <span className="text-sm font-black text-primary font-mono tracking-tighter">${strategy.potentialSavings.toLocaleString()}</span>
+                            <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">Est. Annual Impact</span>
+                            {strategy.type === 'SWITCH' ? (
+                                <span className="text-sm font-black text-emerald-400 font-mono tracking-tighter shadow-emerald-500/20 drop-shadow-[0_0_8px_rgba(52,211,153,0.3)]">
+                                    +${(strategy.potentialSavings * 12).toLocaleString()}
+                                </span>
+                            ) : (
+                                <span className="text-sm font-black text-primary font-mono tracking-tighter font-mono tracking-tighter">
+                                    ${strategy.potentialSavings.toLocaleString()}
+                                </span>
+                            )}
                         </div>
                         {onDismiss && (
+
                             <button 
                                 onClick={onDismiss}
                                 className="p-1 hover:bg-white/10 rounded-full transition-colors text-muted-foreground hover:text-white"

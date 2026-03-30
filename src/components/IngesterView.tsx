@@ -69,6 +69,8 @@ const IngesterView: React.FC = () => {
   const [q3File, setQ3File] = useState<File | null>(null);
   const [ndc3File, setNdc3File] = useState<File | null>(null);
 
+  const [remit835File, setRemit835File] = useState<File | null>(null);
+
   const [status, setStatus] = useState<UploadState>('idle');
   const [progress, setProgress] = useState<number>(0);
   const [logs, setLogs] = useState<string[]>([]);
@@ -319,6 +321,34 @@ const IngesterView: React.FC = () => {
     }
   };
 
+  const processRemittance = async () => {
+    if (!remit835File) {
+        addLog("ERROR: No 835 Remittance file selected.");
+        return;
+    }
+
+    setStatus('parsing');
+    addLog(`Initiating Triple Latch Reconciliation for ${remit835File.name}...`);
+    
+    try {
+        const { claimIngestor } = await import('../services/claimIngestor');
+        const result = await claimIngestor.process835(remit835File);
+        
+        if (result.processed) {
+            addLog(`SUCCESS: Processed ${result.claimsCount} claims.`);
+            addLog(`TRIPLE LATCH: Found ${result.attributionsFound} matches in Attribution Vault.`);
+            addLog(`REVENUE LOCKED: $${result.matchedVolume.toLocaleString()}`);
+
+            addLog(`ESTIMATED PLATFORM FEE (15%): $${result.platformFees.toLocaleString()}`);
+            setStatus('success');
+            setProgress(100);
+        }
+    } catch (err: any) {
+        setStatus('error');
+        addLog(`REMITTANCE FAILURE: ${err.message}`);
+    }
+  };
+
   const clearTables = async () => {
     if (!window.confirm("CRITICAL: This will permanently delete all ASP pricing and NDC crosswalk data. Continue?")) return;
     
@@ -378,6 +408,41 @@ const IngesterView: React.FC = () => {
             <h3 className="font-bold text-lg text-emerald-400">Quarter Forecast (Q+1)</h3>
             <FileUploadZone label="ASP Pricing File" description="Upload Q+1 Pricing CSV" accept=".csv,.xlsx,.xls" file={q3File} onFileSelect={setQ3File} lastUploaded={lastFiles.q3} />
             <FileUploadZone label="NDC Crosswalk" description="Upload Q+1 Crosswalk CSV" accept=".csv,.xlsx,.xls" file={ndc3File} onFileSelect={setNdc3File} lastUploaded={lastFiles.ndc3} />
+        </div>
+      </div>
+
+      {/* 835 Remittance Section */}
+      <div className="bg-indigo-950/20 border border-indigo-500/30 rounded-xl p-6 shadow-lg">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div className="space-y-2 max-w-xl">
+                <h3 className="text-xl font-bold text-indigo-400 flex items-center">
+                    <Database className="w-6 h-6 mr-2" />
+                    Financial Remittance Advice (EDI 835)
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                    Upload your Payer Remittance files to perform the <strong>Triple Latch</strong>. 
+                    The engine will de-identify patient data locally using your Practice Vault salt and match payouts to clinical switch events.
+                </p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row items-center gap-4 flex-1 lg:max-w-md">
+                <div className="flex-1 w-full">
+                    <FileUploadZone 
+                        label="835 EDI File" 
+                        description="Drag .edi remit file here" 
+                        accept=".edi,.txt" 
+                        file={remit835File} 
+                        onFileSelect={setRemit835File} 
+                    />
+                </div>
+                <button 
+                    onClick={processRemittance}
+                    disabled={!remit835File || status === 'parsing' || status === 'uploading'}
+                    className="w-full sm:w-auto px-6 py-6 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold shadow-lg shadow-indigo-500/20 transition-all disabled:opacity-50 flex items-center justify-center"
+                >
+                    {status === 'parsing' ? <RefreshCw className="w-5 h-5 animate-spin" /> : 'RUN RECONCILIATION'}
+                </button>
+            </div>
         </div>
       </div>
 

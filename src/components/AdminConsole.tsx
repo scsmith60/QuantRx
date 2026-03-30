@@ -45,11 +45,15 @@ const AdminConsole: React.FC = () => {
         </nav>
 
         <div className="p-4 border-t border-border mt-auto">
-          <button className="w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-secondary transition-colors">
+          <button 
+            onClick={() => alert("System Configuration Vault is currently locked. Access via Practice Owner credentials only.")}
+            className="w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-secondary transition-colors"
+          >
             <Settings className="w-4 h-4" />
             <span>Settings</span>
           </button>
         </div>
+
       </aside>
 
       {/* Main Content Area */}

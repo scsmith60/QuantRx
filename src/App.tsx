@@ -188,8 +188,9 @@ function App() {
           </div>
         </div>
       ) : (
-        <div className="w-full h-screen overflow-hidden relative animate-in fade-in duration-1000">
-          <div className="fixed bottom-4 left-20 z-50 flex space-x-2 items-center">
+        <div className="w-full h-screen overflow-hidden relative animate-in fade-in duration-1000 bg-[#020204]">
+          <div className="fixed bottom-6 right-8 z-50 flex space-x-2 items-center bg-black/40 backdrop-blur-xl border border-white/10 p-1.5 rounded-xl shadow-2xl">
+
             <button 
               onClick={() => setView('practice')}
               className={`px-3 py-1 text-[10px] font-bold rounded border ${view === 'practice' ? 'bg-primary text-primary-foreground border-primary' : 'bg-secondary text-muted-foreground border-border'}`}
