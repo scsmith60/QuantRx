@@ -13,10 +13,10 @@ interface InvoiceTemplateProps {
 const InvoiceTemplate: React.FC<InvoiceTemplateProps> = ({ data, lineItems, onClose }) => {
     
     const handlePrint = () => {
-        // 100ms delay allows the React state and CSS to fully settle before print capture
+        // 250ms delay allows the browser's render engine to fully stabilize its print buffer
         setTimeout(() => {
             window.print();
-        }, 100);
+        }, 250);
     };
 
     return (
@@ -24,8 +24,16 @@ const InvoiceTemplate: React.FC<InvoiceTemplateProps> = ({ data, lineItems, onCl
             <style>
                 {`
                 @media print {
-                    /* Surgery: Hide everything else but the root of our modal chain */
-                    aside, header, main { display: none !important; }
+                    /* Surgery: Only hide siblings that compete for page space */
+                    aside, header, footer, .print-hidden { 
+                        display: none !important; 
+                    }
+                    
+                    /* Ensure 'main' and 'root' aren't hidden */
+                    #root, main { 
+                        display: block !important; 
+                        overflow: visible !important;
+                    }
 
                     .print-container {
                         display: block !important;
@@ -38,7 +46,6 @@ const InvoiceTemplate: React.FC<InvoiceTemplateProps> = ({ data, lineItems, onCl
                         z-index: 9999 !important;
                         padding: 0 !important;
                         margin: 0 !important;
-                        visibility: visible !important;
                     }
                     .print-content {
                         display: block !important;
@@ -49,9 +56,7 @@ const InvoiceTemplate: React.FC<InvoiceTemplateProps> = ({ data, lineItems, onCl
                         color: black !important;
                         border: none !important;
                         box-shadow: none !important;
-                        visibility: visible !important;
                     }
-                    .print-hidden { display: none !important; }
                     .print-swirly {
                         opacity: 0.1 !important;
                         color: #39FF14 !important;
