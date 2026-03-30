@@ -13,8 +13,10 @@ interface InvoiceTemplateProps {
 const InvoiceTemplate: React.FC<InvoiceTemplateProps> = ({ data, lineItems, onClose }) => {
     
     const handlePrint = () => {
-        window.print();
-        onClose();
+        // 100ms delay allows the React state and CSS to fully settle before print capture
+        setTimeout(() => {
+            window.print();
+        }, 100);
     };
 
     return (
@@ -22,27 +24,34 @@ const InvoiceTemplate: React.FC<InvoiceTemplateProps> = ({ data, lineItems, onCl
             <style>
                 {`
                 @media print {
-                    body * {
-                        visibility: hidden;
-                    }
-                    .print-content, .print-content * {
-                        visibility: visible;
+                    /* Surgery: Hide everything else but the root of our modal chain */
+                    aside, header, main { display: none !important; }
+
+                    .print-container {
+                        display: block !important;
+                        position: absolute !important;
+                        left: 0 !important;
+                        top: 0 !important;
+                        width: 100% !important;
+                        height: auto !important;
+                        background: white !important;
+                        z-index: 9999 !important;
+                        padding: 0 !important;
+                        margin: 0 !important;
+                        visibility: visible !important;
                     }
                     .print-content {
-                        position: fixed;
-                        left: 0;
-                        top: 0;
-                        width: 100%;
-                        max-width: 100%;
-                        margin: 0;
-                        padding: 2cm;
-                        border: none;
-                        box-shadow: none;
-                        border-radius: 0;
+                        display: block !important;
+                        width: 100% !important;
+                        max-width: 100% !important;
+                        padding: 1.5cm !important;
                         background: white !important;
                         color: black !important;
+                        border: none !important;
+                        box-shadow: none !important;
+                        visibility: visible !important;
                     }
-                    /* Ensure SVG swirly is visible but subtle in print */
+                    .print-hidden { display: none !important; }
                     .print-swirly {
                         opacity: 0.1 !important;
                         color: #39FF14 !important;
@@ -53,7 +62,7 @@ const InvoiceTemplate: React.FC<InvoiceTemplateProps> = ({ data, lineItems, onCl
             </style>
             
             {/* Action Bar (Hidden when printing) */}
-            <div className="w-full max-w-4xl flex justify-between items-center mb-8 px-6 print:hidden">
+            <div className="w-full max-w-4xl flex justify-between items-center mb-8 px-6 print:hidden print-hidden">
                 <button onClick={onClose} className="text-white/60 hover:text-white flex items-center space-x-2">
                     <span>✕ Cancel Export</span>
                 </button>
