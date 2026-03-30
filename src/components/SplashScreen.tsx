@@ -54,9 +54,10 @@ const SplashScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
       {/* 3. Helix Formation (SVG) */}
       <motion.div
         initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: [0, 1, 1, 0], scale: [0.5, 1, 1.2, 1.5] }}
-        transition={{ delay: 1.5, duration: 1.5, times: [0, 0.2, 0.8, 1] }}
-        className="relative z-20"
+        animate={{ opacity: [0, 1, 0.4], scale: [0.5, 1, 1.1] }}
+        transition={{ delay: 1.5, duration: 2.5, times: [0, 0.2, 1], ease: "easeOut" }}
+        className="absolute z-10"
+
       >
         <svg width="200" height="200" viewBox="0 0 100 100" className="text-[#39FF14]">
           <motion.path
