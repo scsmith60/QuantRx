@@ -34,6 +34,7 @@ const PracticePortal: React.FC = () => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [marketAlerts, setMarketAlerts] = useState<MarketAlert[]>([]);
   const [isFocusMode, setIsFocusMode] = useState(false);
+  const [globalFee, setGlobalFee] = useState(15);
   const [notifications, setNotifications] = useState<Notification[]>([
     { id: '1', type: 'system', title: 'ASP Pricing Synchronized', message: 'CMS Q3 2026 Average Sales Price data successfully merged.', timestamp: '2M AGO', isRead: false },
     { id: '2', type: 'clinical', title: 'New Optimization Detected', message: 'Jane Smith (Pat-002) is eligible for a +$2,057 switch.', timestamp: '15M AGO', isRead: false },
@@ -75,6 +76,10 @@ const PracticePortal: React.FC = () => {
         const strategy = await yieldService.getOptimizationStrategy('J9035', filtered);
         setActiveStrategy(strategy || { type: 'NONE', title: '', description: '', potentialSavings: 0, strategyFee: 0, actionLabel: '' });
         setTotalStrategyFees(yieldService.getTotalStrategyFees());
+
+        // Fetch Dynamic Platform Fee
+        const fee = await cmsService.getGlobalConfig('global_fee_percent', 15);
+        setGlobalFee(fee);
       } catch (err) {
         console.error("[PracticePortal] Fatal load failure:", err);
         setIsSyncingCMS(false);
@@ -83,7 +88,7 @@ const PracticePortal: React.FC = () => {
     loadData();
   }, [activeSpecialty]);
 
-  const quantrxFee = totalFoundMoney * 0.15 + totalStrategyFees;
+  const quantrxFee = totalFoundMoney * (globalFee / 100) + totalStrategyFees;
   const practiceNet = totalFoundMoney - quantrxFee;
   const potentialTotal = totalFoundMoney > 0 ? totalFoundMoney * 1.4 : 15000;
 

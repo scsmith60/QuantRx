@@ -57,12 +57,11 @@ class YieldService {
     /**
      * Analyzes a drug for optimization opportunities
      */
-    async getOptimizationStrategy(hcpcs: string, patients: any[]): Promise<StrategyOption> {
+    async getOptimizationStrategy(hcpcs: string, patients: any[], currentPatientTherapy?: any): Promise<StrategyOption> {
         const record = cmsService.getASPByHCPCS(hcpcs);
         if (!record) return { type: 'NONE', title: '', description: '', potentialSavings: 0, strategyFee: 0, actionLabel: '' };
 
         const affectingPatients = patients.filter(p => p.orderHcpcs === hcpcs).length;
-        // Business logic: 1 patient needs ~3 vials per quarter (approx. monthly visit)
         const vialsPerQuarter = affectingPatients * 3;
 
         // 1. Calculate Buy-In Savings (Lookforward)
@@ -70,21 +69,25 @@ class YieldService {
             ? (record.nextASP - record.aspPrice) * vialsPerQuarter 
             : 0;
 
-        // 2. Clinical Recommendation Logic
+        // 2. Clinical Recommendation Logic (Competitive Re-Optimization)
         const rec = await this.findBestClinicalRecommendation(hcpcs);
+        
+        // If we have a specific patient therapy to compare against (Rolling Baseline)
+        const currentMargin = currentPatientTherapy?.margin || 200; // Baseline margin
         let switchSavings = 0;
         if (rec) {
-            switchSavings = rec.margin * affectingPatients; // Simulating 1 vial per patient for the switch demo
+            switchSavings = (rec.margin - currentMargin) * affectingPatients;
         }
 
         if (switchSavings > buyInSavings && switchSavings > 0 && rec) {
+            const isSwitchBack = rec.description.toLowerCase().includes('brand') || !record.description.toLowerCase().includes('brand');
             return {
                 type: 'SWITCH',
-                title: 'BIOSIMILAR CONVERSION OPPORTUNITY',
-                description: `You have ${affectingPatients} patients on ${record.description}. Switching to ${rec.description} based on your GPO contracts could increase margin by $${switchSavings.toLocaleString()}.`,
+                title: isSwitchBack ? 'COMPETITIVE RE-OPTIMIZATION' : 'BIOSIMILAR CONVERSION OPPORTUNITY',
+                description: `Current therapy ${record.description} can be optimized. Switching to ${rec.description} based on current GPO/ASP dynamics increases margin by $${switchSavings.toLocaleString()}.`,
                 potentialSavings: switchSavings,
                 strategyFee: switchSavings * 0.15,
-                actionLabel: `SWITCH TO ${rec.description.toUpperCase()}`,
+                actionLabel: isSwitchBack ? `SWITCH BACK TO ${rec.description.toUpperCase()}` : `SWITCH TO ${rec.description.toUpperCase()}`,
                 data: rec
             };
         } else if (buyInSavings > 0 && record.aspPrice > 0) {
@@ -92,7 +95,7 @@ class YieldService {
             return {
                 type: 'BUY_IN',
                 title: 'PROJECTED ASP INCREASE DETECTED',
-                description: `ASP for ${record.description} is increasing by ${percIncrease}% next quarter. You have ${affectingPatients} patients using approx. ${vialsPerQuarter} vials/quarter. Recommend buying ${vialsPerQuarter} vials now to lock in $${buyInSavings.toLocaleString()} savings.`,
+                description: `ASP for ${record.description} is increasing by ${percIncrease}% next quarter. Recommend buying ${vialsPerQuarter} vials now to lock in $${buyInSavings.toLocaleString()} savings.`,
                 potentialSavings: buyInSavings,
                 strategyFee: buyInSavings * 0.15,
                 actionLabel: 'EXECUTE BUY-IN',
@@ -107,16 +110,20 @@ class YieldService {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        // 1. Record the initial Attribution (Transaction)
+        // 0. Fetch Global Fee (default 15%)
+        const feePercent = await cmsService.getGlobalConfig('global_fee_percent', 15);
+        const quantFee = netLift * (feePercent / 100);
+
+        // 1. Record the Attribution (Transaction)
         const { error: attributionError } = await supabase
             .from('quant_vault.attribution')
             .insert({
                 practice_id: user.id,
-                patient_id: patientId, // Note: This should be hashed in production
+                patient_id: patientId, 
                 ndc_ordered: fromHcpcs,
                 ndc_recommended: toHcpcs,
                 net_profit_recovered: netLift,
-                quant_fee_15_percent: netLift * 0.15,
+                quant_fee_15_percent: quantFee,
                 status: 'Detected'
             });
 
@@ -124,21 +131,42 @@ class YieldService {
             console.error("[Yield] Error logging switch attribution:", attributionError);
         }
 
-        // 2. Enroll for life of drug (The "Annuity")
-        const { error: enrollmentError } = await supabase
+        // 2. Manage the Optimization Chain (A -> B -> C)
+        // Check if this patient already has an active optimization for this baseline
+        const { data: existing } = await supabase
             .from('quant_vault.managed_therapies')
-            .upsert({
-                practice_id: user.id,
-                patient_id_hash: patientId,
-                hcpcs_recommended: toHcpcs,
-                original_ndc: fromHcpcs,
-                estimated_annual_lift: netLift * 12,
-                is_active: true
-            });
+            .select('*')
+            .eq('patient_id_hash', patientId)
+            .eq('original_ndc', fromHcpcs)
+            .eq('is_active', true)
+            .maybeSingle();
 
-        if (enrollmentError) {
-            console.error("[Yield] Error enrolling therapy:", enrollmentError);
+        if (existing) {
+            // RE-OPTIMIZATION: The old "Recommended" now becomes the "New Baseline"
+            // We optimized A -> B. Now we are optimizing B -> C.
+            await supabase
+                .from('quant_vault.managed_therapies')
+                .update({
+                    baseline_ndc: existing.hcpcs_recommended, // Biosim A is now the baseline
+                    hcpcs_recommended: toHcpcs,             // Biosim B is the new target
+                    estimated_annual_lift: netLift * 12,
+                    last_detected_date: new Date().toISOString()
+                })
+                .eq('id', existing.id);
+        } else {
+            // NEW ENROLLMENT (First Switch)
+            await supabase
+                .from('quant_vault.managed_therapies')
+                .upsert({
+                    practice_id: user.id,
+                    patient_id_hash: patientId,
+                    hcpcs_recommended: toHcpcs,
+                    baseline_ndc: fromHcpcs, // Original Brand
+                    estimated_annual_lift: netLift * 12,
+                    is_active: true
+                });
         }
+
     }
 
     async logBuyInEvent(hcpcs: string, actualQuantity: number, savings: number) {
@@ -211,7 +239,7 @@ class YieldService {
                 title: 'BIOSIMILAR CONVERSION',
                 description: `Switch ${patient.name || 'Patient'} to ${rec.description}`,
                 potentialSavings: recovery,
-                strategyFee: recovery * 0.15,
+                strategyFee: recovery * 0.15, // TODO: Pull dynamic fee here as well
                 actionLabel: `SWITCH TO ${rec.description.toUpperCase()}`,
                 data: rec
             };

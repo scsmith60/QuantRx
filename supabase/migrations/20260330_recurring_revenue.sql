@@ -8,10 +8,11 @@ CREATE TABLE IF NOT EXISTS quant_vault.managed_therapies (
     practice_id UUID NOT NULL REFERENCES auth.users(id),
     patient_id_hash TEXT NOT NULL, -- De-identified patient hash
     hcpcs_recommended TEXT NOT NULL,
-    original_ndc text REFERENCES public.medication_master(ndc_code),
+    baseline_ndc text REFERENCES public.medication_master(ndc_code), -- The NDC being replaced at time of switch
     enrolled_date DATE DEFAULT CURRENT_DATE,
     last_detected_date DATE DEFAULT CURRENT_DATE,
     is_active BOOLEAN DEFAULT true,
+
     estimated_annual_lift DECIMAL(12, 2),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     

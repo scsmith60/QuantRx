@@ -15,6 +15,10 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [emailFocus, setEmailFocus] = useState(false);
   const [passFocus, setPassFocus] = useState(false);
 
+  const [showRequestModal, setShowRequestModal] = useState(false);
+  const [requestSubmitted, setRequestSubmitted] = useState(false);
+  const [leadForm, setLeadForm] = useState({ practice: '', npi: '', email: '', name: '' });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -179,6 +183,96 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               </button>
             </form>
 
+            {/* Request Modal Portal */}
+            {showRequestModal && (
+              <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="w-full max-w-lg glass-panel p-8 rounded-3xl border border-primary/20 shadow-[0_0_50px_rgba(57,255,20,0.2)]"
+                >
+                  {requestSubmitted ? (
+                    <div className="text-center space-y-4 py-8">
+                       <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                          <CheckCircle className="w-8 h-8 text-primary" />
+                       </div>
+                       <h3 className="text-2xl font-bold text-white tracking-tight">Transmission Received</h3>
+                       <p className="text-sm text-muted-foreground leading-relaxed">
+                          Your credentials and NPI ({leadForm.npi}) have been submitted to the QuantRx Compliance Vault. 
+                          A Super Admin will contact you at <span className="text-white">{leadForm.email}</span> within 24 hours.
+                       </p>
+                       <button onClick={() => setShowRequestModal(false)} className="px-8 py-3 bg-primary text-primary-foreground rounded-xl font-bold uppercase text-xs">Acknowledge</button>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-xl font-bold text-white">Vault Access Request</h3>
+                            <button onClick={() => setShowRequestModal(false)} className="text-muted-foreground hover:text-white">✕</button>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground uppercase tracking-widest font-mono italic">"Verification required for HIPAA Compliance & GPO Logic Access."</p>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-[10px] uppercase font-bold text-slate-400">Practice Name</label>
+                                <input 
+                                  className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white focus:border-primary outline-none" 
+                                  placeholder="e.g. Texas Cancer Specialists"
+                                  value={leadForm.practice}
+                                  onChange={e => setLeadForm({...leadForm, practice: e.target.value})}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] uppercase font-bold text-slate-400">Facility NPI (10-Digit)</label>
+                                <input 
+                                  className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white focus:border-primary outline-none" 
+                                  placeholder="0123456789"
+                                  maxLength={10}
+                                  value={leadForm.npi}
+                                  onChange={e => setLeadForm({...leadForm, npi: e.target.value})}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] uppercase font-bold text-slate-400">Professional Email</label>
+                                <input 
+                                  className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white focus:border-primary outline-none" 
+                                  placeholder="dr.smith@practice.com"
+                                  value={leadForm.email}
+                                  onChange={e => setLeadForm({...leadForm, email: e.target.value})}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] uppercase font-bold text-slate-400">Your Full Name</label>
+                                <input 
+                                  className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white focus:border-primary outline-none" 
+                                  placeholder="Dr. John Smith"
+                                  value={leadForm.name}
+                                  onChange={e => setLeadForm({...leadForm, name: e.target.value})}
+                                />
+                            </div>
+                        </div>
+
+                        <button 
+                          onClick={async () => {
+                            setLoading(true);
+                            const { error } = await supabase.from('onboarding_leads').insert({
+                                practice_name: leadForm.practice,
+                                npi_number: leadForm.npi,
+                                admin_email: leadForm.email,
+                                full_name: leadForm.name
+                            });
+                            if (!error) setRequestSubmitted(true);
+                            setLoading(false);
+                          }}
+                          className="w-full py-4 bg-primary text-primary-foreground rounded-xl font-bold uppercase text-xs shadow-[0_0_20px_rgba(57,255,20,0.2)]"
+                        >
+                          {loading ? 'Transmitting...' : 'Request Credentials'}
+                        </button>
+                    </div>
+                  )}
+                </motion.div>
+              </div>
+            )}
+
             {/* Security Badges */}
             <div className="mt-12 pt-8 border-t border-white/5 flex items-center justify-between">
                 <div className="flex flex-col items-center space-y-1 opacity-40 hover:opacity-80 transition-opacity">
@@ -204,7 +298,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           transition={{ delay: 1 }}
           className="mt-8 text-muted-foreground text-sm"
         >
-          New Practice? <span className="text-primary font-medium hover:underline cursor-pointer inline-flex items-center">Request Vault Access <ArrowRight className="ml-1 w-3 h-3" /></span>
+          New Practice? <span onClick={() => setShowRequestModal(true)} className="text-primary font-medium hover:underline cursor-pointer inline-flex items-center">Request Vault Access <ArrowRight className="ml-1 w-3 h-3" /></span>
         </motion.p>
 
       </div>

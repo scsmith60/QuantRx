@@ -275,6 +275,17 @@ class CMSService {
         }
         return { is_active: true, flat_rebate_biosimilar: 2.50 };
     }
+
+    async getGlobalConfig(key: string, defaultValue: any): Promise<any> {
+        const { data, error } = await supabase
+            .from('platform_config')
+            .select('value')
+            .eq('key', key)
+            .maybeSingle();
+
+        if (error || !data) return defaultValue;
+        return data.value;
+    }
 }
 
 export const cmsService = new CMSService();

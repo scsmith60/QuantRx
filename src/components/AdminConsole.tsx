@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { LayoutGrid, FileText, Globe, Settings, Search, Database } from 'lucide-react';
+import { LayoutGrid, FileText, Globe, Settings, Search, Database, UserCheck } from 'lucide-react';
 import GlobalMarginView from './GlobalMarginView.tsx';
 import GeneratedInvoices from './GeneratedInvoices.tsx';
 import IngesterView from './IngesterView.tsx';
+import SystemConfigView from './SystemConfigView.tsx';
+import ApprovalsView from './ApprovalsView.tsx';
+
 
 const AdminConsole: React.FC = () => {
   const [activeTab, setActiveTab] = useState('margin');
@@ -44,10 +47,17 @@ const AdminConsole: React.FC = () => {
           </button>
         </nav>
 
-        <div className="p-4 border-t border-border mt-auto">
+        <div className="p-4 border-t border-border mt-auto space-y-2">
           <button 
-            onClick={() => alert("System Configuration Vault is currently locked. Access via Practice Owner credentials only.")}
-            className="w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-secondary transition-colors"
+            onClick={() => setActiveTab('approvals')}
+            className={`w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'approvals' ? 'bg-primary/10 text-primary border border-primary/20 shadow-[0_0_15px_rgba(57,255,20,0.1)]' : 'text-muted-foreground hover:bg-secondary'}`}
+          >
+            <UserCheck className="w-4 h-4" />
+            <span>Pending Approvals</span>
+          </button>
+          <button 
+            onClick={() => setActiveTab('settings')}
+            className={`w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'settings' ? 'bg-primary/10 text-primary border border-primary/20 shadow-[0_0_15px_rgba(57,255,20,0.1)]' : 'text-muted-foreground hover:bg-secondary'}`}
           >
             <Settings className="w-4 h-4" />
             <span>Settings</span>
@@ -82,6 +92,8 @@ const AdminConsole: React.FC = () => {
             {activeTab === 'margin' && <GlobalMarginView />}
             {activeTab === 'invoices' && <GeneratedInvoices />}
             {activeTab === 'ingestion' && <IngesterView />}
+            {activeTab === 'settings' && <SystemConfigView />}
+            {activeTab === 'approvals' && <ApprovalsView />}
         </div>
       </main>
     </div>
