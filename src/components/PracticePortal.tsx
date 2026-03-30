@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fhirService } from '../services/fhirService';
-import { TrendingUp, Users, DollarSign, Bell, Search, Database } from 'lucide-react';
+import { TrendingUp, Users, DollarSign, Bell, Search, Database, Settings } from 'lucide-react';
 import FoundMoneySidebar from './FoundMoneySidebar.tsx';
 import LiveYieldDashboard from './LiveYieldDashboard.tsx';
 import SpecialtyTabs from './SpecialtyTabs.tsx';
@@ -111,7 +111,18 @@ const PracticePortal: React.FC = () => {
             <Database className="w-5 h-5" />
           </button>
         </nav>
+
+        <div className="mt-auto pb-4">
+          <button 
+            onClick={() => alert("Practice Configuration Vault is currently locked. Contact QuantRx Support for policy modifications.")}
+            className="p-2 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-primary transition-all transition-all" 
+            title="Settings"
+          >
+            <Settings className="w-5 h-5" />
+          </button>
+        </div>
       </aside>
+
 
       <main className="flex-1 flex flex-col overflow-hidden">
         <header className="h-20 border-b border-border flex items-center justify-between px-8 glass-panel shadow-sm z-10 shrink-0">
