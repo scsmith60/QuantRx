@@ -18,7 +18,39 @@ const InvoiceTemplate: React.FC<InvoiceTemplateProps> = ({ data, lineItems, onCl
     };
 
     return (
-        <div className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-xl flex flex-col items-center overflow-y-auto pt-10 pb-20 print:p-0 print:bg-white print:static print:inset-auto">
+        <div className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-xl flex flex-col items-center overflow-y-auto pt-10 pb-20 print:p-0 print:bg-white print:static print:inset-auto print-container">
+            <style>
+                {`
+                @media print {
+                    body * {
+                        visibility: hidden;
+                    }
+                    .print-content, .print-content * {
+                        visibility: visible;
+                    }
+                    .print-content {
+                        position: fixed;
+                        left: 0;
+                        top: 0;
+                        width: 100%;
+                        max-width: 100%;
+                        margin: 0;
+                        padding: 2cm;
+                        border: none;
+                        box-shadow: none;
+                        border-radius: 0;
+                        background: white !important;
+                        color: black !important;
+                    }
+                    /* Ensure SVG swirly is visible but subtle in print */
+                    .print-swirly {
+                        opacity: 0.1 !important;
+                        color: #39FF14 !important;
+                        -webkit-print-color-adjust: exact;
+                    }
+                }
+                `}
+            </style>
             
             {/* Action Bar (Hidden when printing) */}
             <div className="w-full max-w-4xl flex justify-between items-center mb-8 px-6 print:hidden">
@@ -37,8 +69,26 @@ const InvoiceTemplate: React.FC<InvoiceTemplateProps> = ({ data, lineItems, onCl
             <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="w-full max-w-[800px] bg-[#0d1117] rounded-3xl border border-white/10 p-16 space-y-12 shadow-2xl relative overflow-hidden print:border-none print:shadow-none print:bg-white print:text-black print:rounded-none print:p-8"
+                className="w-full max-w-[800px] bg-[#0d1117] rounded-3xl border border-white/10 p-16 space-y-12 shadow-2xl relative overflow-hidden print-content"
             >
+                {/* Global Swirly Helix (Behind Logo) */}
+                <div className="absolute top-8 left-8 w-48 h-48 opacity-10 pointer-events-none print-swirly">
+                    <svg viewBox="0 0 100 100" className="w-full h-full text-primary">
+                        <path
+                            d="M50,10 Q60,30 40,50 Q60,70 50,90"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                        />
+                        <path
+                            d="M50,10 Q40,30 60,50 Q40,70 50,90"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                        />
+                    </svg>
+                </div>
+
                 {/* Logo Backdrop (Modern Accent) */}
                 <div className="absolute top-[-10%] right-[-10%] w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px] pointer-events-none print:hidden"></div>
 
@@ -48,10 +98,14 @@ const InvoiceTemplate: React.FC<InvoiceTemplateProps> = ({ data, lineItems, onCl
                         <div className="flex items-center space-x-3">
                             <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-primary-foreground font-black text-2xl">Q</div>
                             <div className="flex flex-col">
-                                <span className="text-2xl font-black tracking-tighter text-white print:text-black">QUANT<span className="text-primary font-black">RX</span></span>
+                                <span className="text-2xl tracking-tighter text-white print:text-black">
+                                    <span className="font-light tracking-widest">QUANT</span>
+                                    <span className="text-primary font-black ml-1">RX</span>
+                                </span>
                                 <span className="text-[10px] text-primary font-bold uppercase tracking-[0.3em]">Maximizing Margin Per Dose</span>
                             </div>
                         </div>
+
                         <div className="space-y-1">
                             <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest print:text-gray-500">BILLED TO</p>
                             <h2 className="text-2xl font-bold text-white print:text-black">{data.practiceName}</h2>
