@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { Shield } from 'lucide-react';
 import type { InvoiceData, InvoiceLineItem } from '../services/invoicingService';
 
-
 interface InvoiceTemplateProps {
     data: InvoiceData;
     lineItems: InvoiceLineItem[];
@@ -85,32 +84,29 @@ const InvoiceTemplate: React.FC<InvoiceTemplateProps> = ({ data, lineItems, onCl
                 animate={{ opacity: 1, y: 0 }}
                 className="w-full max-w-[800px] bg-[#0d1117] rounded-3xl border border-white/10 p-16 space-y-12 shadow-2xl relative overflow-hidden print-content"
             >
-                {/* Global Swirly Helix (Behind Logo) */}
-                <div className="absolute top-8 left-8 w-48 h-48 opacity-10 pointer-events-none print-swirly">
-                    <svg viewBox="0 0 100 100" className="w-full h-full text-primary">
-                        <path
-                            d="M50,10 Q60,30 40,50 Q60,70 50,90"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                        />
-                        <path
-                            d="M50,10 Q40,30 60,50 Q40,70 50,90"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                        />
-                    </svg>
-                </div>
-
-                {/* Logo Backdrop (Modern Accent) */}
-                <div className="absolute top-[-10%] right-[-10%] w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px] pointer-events-none print:hidden"></div>
-
                 {/* Header */}
                 <div className="flex justify-between items-start relative z-10">
                     <div className="space-y-6">
-                        <div className="flex items-center space-x-3">
-                            <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-primary-foreground font-black text-2xl">Q</div>
+                        <div className="flex items-center space-x-3 relative">
+                            {/* Repositioned Swirly Helix (Centered perfectly behind Q) */}
+                            <div className="absolute left-[24px] top-[24px] -translate-x-1/2 -translate-y-1/2 w-20 h-20 opacity-20 pointer-events-none print-swirly z-[-1]">
+                                <svg viewBox="0 0 100 100" className="w-full h-full text-primary">
+                                    <path
+                                        d="M50,10 Q60,30 40,50 Q60,70 50,90"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="3"
+                                    />
+                                    <path
+                                        d="M50,10 Q40,30 60,50 Q40,70 50,90"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="3"
+                                    />
+                                </svg>
+                            </div>
+
+                            <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-primary-foreground font-black text-2xl relative shadow-lg">Q</div>
                             <div className="flex flex-col">
                                 <span className="text-2xl tracking-tighter text-white print:text-black">
                                     <span className="font-light tracking-widest">QUANT</span>
@@ -152,7 +148,8 @@ const InvoiceTemplate: React.FC<InvoiceTemplateProps> = ({ data, lineItems, onCl
                     <table className="w-full text-sm">
                         <thead className="text-left text-muted-foreground print:text-gray-500">
                             <tr>
-                                <th className="pb-4 font-bold text-[10px] uppercase">Patient (Secure Hash)</th>
+                                <th className="pb-4 font-bold text-[10px] uppercase">Service Type</th>
+                                <th className="pb-4 font-bold text-[10px] uppercase">Patient / Secure Hash</th>
                                 <th className="pb-4 font-bold text-[10px] uppercase">HCPCS / NDC</th>
                                 <th className="pb-4 font-bold text-[10px] uppercase text-right">Margin Found</th>
                                 <th className="pb-4 font-bold text-[10px] uppercase text-right">Yield Fee</th>
@@ -161,6 +158,15 @@ const InvoiceTemplate: React.FC<InvoiceTemplateProps> = ({ data, lineItems, onCl
                         <tbody className="divide-y divide-white/5 print:divide-gray-100">
                             {lineItems.length > 0 ? lineItems.map((item, idx) => (
                                 <tr key={idx} className="group">
+                                    <td className="py-4">
+                                        <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter ${
+                                            item.type === '835 Match' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20' :
+                                            item.type === 'Switch Intent' ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/20' :
+                                            'bg-amber-500/20 text-amber-400 border border-amber-500/20'
+                                        }`}>
+                                            {item.type}
+                                        </span>
+                                    </td>
                                     <td className="py-4 font-mono text-[11px] text-white/60 print:text-black">#{item.patient_id.slice(0, 8)}...</td>
                                     <td className="py-4 text-white print:text-black font-medium">{item.ndc_recommended}</td>
                                     <td className="py-4 text-right text-emerald-400 font-bold print:text-black">${item.recovered_margin.toLocaleString()}</td>

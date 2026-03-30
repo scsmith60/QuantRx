@@ -18,7 +18,7 @@ const GeneratedInvoices: React.FC = () => {
     const handleOpenPDF = async (practiceName: string, lift: number, id: string) => {
         setLoadingId(id);
         const invoice = invoicingService.generateInvoice(practiceName, lift);
-        const matches = await invoicingService.fetchAccountMatches('SYSTEM_MOCK_ID'); // Replace with real practice_id in prod
+        const matches = await invoicingService.fetchAccountMatches('SYSTEM_MOCK_ID', lift); 
         
         setSelectedInvoice(invoice);
         setLineItems(matches);
@@ -40,14 +40,30 @@ const GeneratedInvoices: React.FC = () => {
           return (
             <div key={p.id} className="p-8 rounded-2xl border border-border glass-panel relative group">
               <div className="flex justify-between items-start mb-6">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-                    <FileText className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold">{p.name}</h3>
-                    <p className="text-sm text-muted-foreground italic tracking-tight">{invoice.billingPeriod} Cycle</p>
-                  </div>
+                <div className="flex items-center space-x-3 relative">
+                    {/* Repositioned Swirly Helix (Centered perfectly behind Q) */}
+                    <div className="absolute left-[24px] top-[24px] -translate-x-1/2 -translate-y-1/2 w-20 h-20 opacity-20 pointer-events-none print-swirly z-[-1]">
+                        <svg viewBox="0 0 100 100" className="w-full h-full text-primary">
+                            <path
+                                d="M50,10 Q60,30 40,50 Q60,70 50,90"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="3"
+                            />
+                            <path
+                                d="M50,10 Q40,30 60,50 Q40,70 50,90"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="3"
+                            />
+                        </svg>
+                    </div>
+
+                    <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-primary-foreground font-black text-2xl relative shadow-lg">Q</div>
+                    <div>
+                        <h3 className="text-xl font-bold">{p.name}</h3>
+                        <p className="text-sm text-muted-foreground italic tracking-tight">{invoice.billingPeriod} Cycle</p>
+                    </div>
                 </div>
                 <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button 
