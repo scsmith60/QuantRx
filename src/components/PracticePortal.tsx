@@ -10,6 +10,8 @@ import SpecialtyRxView from './SpecialtyRxView.tsx';
 import ASPLookup from './ASPLookup.tsx';
 import DistributorIngester from './DistributorIngester.tsx';
 import DataCenterView from './DataCenterView.tsx';
+import RemittanceIngester from './RemittanceIngester.tsx';
+
 import { yieldService } from '../services/yieldService';
 import type { StrategyOption } from '../services/yieldService';
 import StrategyCard from './StrategyCard.tsx';
@@ -234,14 +236,9 @@ const PracticePortal: React.FC = () => {
                         <p className="text-sm text-muted-foreground mt-1">Identify historical leakage and white-bagging mandates.</p>
                     </div>
                     <WhiteBagAuditor />
-                    <div className="glass-panel p-12 rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-center group hover:border-primary/50 transition-all cursor-pointer">
-                        <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-all">
-                             <Database className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-all" />
-                        </div>
-                        <h3 className="text-xl font-bold text-white mb-2">Lost Revenue Audit</h3>
-                        <p className="text-sm text-muted-foreground max-w-md">Drag and drop EDI 835 Remittance Advice files here to audit historical pharmacy payments.</p>
-                    </div>
+                    <RemittanceIngester />
                 </div>
+
              ) : currentView === 'datacenter' ? (
                 <DataCenterView />
              ) : (
