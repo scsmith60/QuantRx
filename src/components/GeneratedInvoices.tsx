@@ -1,6 +1,8 @@
-import React from 'react';
 import { invoicingService } from '../services/invoicingService';
-import { FileText, Download, CheckCircle2 } from 'lucide-react';
+import type { InvoiceData, InvoiceLineItem } from '../services/invoicingService';
+import { FileText, Download, CheckCircle2, Loader2 } from 'lucide-react';
+import InvoiceTemplate from './InvoiceTemplate';
+import React, { useState } from 'react';
 
 const MOCK_PRACTICES = [
   { id: '1', name: 'Oncology Associates of NJ', lift: 124500 },
@@ -9,7 +11,21 @@ const MOCK_PRACTICES = [
 ];
 
 const GeneratedInvoices: React.FC = () => {
-  return (
+    const [selectedInvoice, setSelectedInvoice] = useState<InvoiceData | null>(null);
+    const [lineItems, setLineItems] = useState<InvoiceLineItem[]>([]);
+    const [loadingId, setLoadingId] = useState<string | null>(null);
+
+    const handleOpenPDF = async (practiceName: string, lift: number, id: string) => {
+        setLoadingId(id);
+        const invoice = invoicingService.generateInvoice(practiceName, lift);
+        const matches = await invoicingService.fetchAccountMatches('SYSTEM_MOCK_ID'); // Replace with real practice_id in prod
+        
+        setSelectedInvoice(invoice);
+        setLineItems(matches);
+        setLoadingId(null);
+    };
+
+    return (
     <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
       <div>
         <h2 className="text-3xl font-bold tracking-tight mb-2">Automated Invoicing</h2>
@@ -34,8 +50,12 @@ const GeneratedInvoices: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button className="px-3 py-1.5 border border-border rounded-lg text-xs font-semibold hover:bg-secondary transition-colors flex items-center space-x-2">
-                    <Download className="w-3.5 h-3.5" />
+                  <button 
+                    onClick={() => handleOpenPDF(p.name, p.lift, p.id)}
+                    disabled={loadingId === p.id}
+                    className="px-3 py-1.5 border border-border rounded-lg text-xs font-semibold hover:bg-secondary transition-colors flex items-center space-x-2"
+                  >
+                    {loadingId === p.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
                     <span>PDF</span>
                   </button>
                   <button className="px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-bold hover:opacity-90 transition-opacity flex items-center space-x-2">
@@ -69,6 +89,14 @@ const GeneratedInvoices: React.FC = () => {
           );
         })}
       </div>
+
+      {selectedInvoice && (
+          <InvoiceTemplate 
+            data={selectedInvoice} 
+            lineItems={lineItems} 
+            onClose={() => setSelectedInvoice(null)} 
+          />
+      )}
     </div>
   );
 };
