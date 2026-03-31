@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS public.onboarding_leads (
     npi_number TEXT NOT NULL,
     admin_email TEXT NOT NULL,
     full_name TEXT NOT NULL,
+    organization_id UUID REFERENCES public.organizations(id), -- Added: Link to created org
     status TEXT NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -67,9 +68,11 @@ BEGIN
         SELECT id FROM auth.users WHERE email = v_lead.admin_email
     );
 
-    -- 5. Mark lead as APPROVED
+    -- 5. Mark lead as APPROVED and link Org
     UPDATE public.onboarding_leads 
-    SET status = 'APPROVED', updated_at = NOW()
+    SET status = 'APPROVED', 
+        organization_id = v_org_id,
+        updated_at = NOW()
     WHERE id = lead_id;
 
     RETURN jsonb_build_object('success', true, 'org_id', v_org_id);

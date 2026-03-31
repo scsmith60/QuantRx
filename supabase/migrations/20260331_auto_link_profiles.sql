@@ -8,22 +8,26 @@ RETURNS TRIGGER AS $$
 DECLARE
     v_org_id UUID;
     v_full_name TEXT;
-    v_lead_id UUID;
 BEGIN
-    -- Search for an APPROVED lead matching the new user's email
-    SELECT id, organization_id, full_name 
-    INTO v_lead_id, v_org_id, v_full_name
+    -- 1. Check if a profile already exists for this ID (safety)
+    IF EXISTS (SELECT 1 FROM public.user_profiles WHERE id = NEW.id) THEN
+        RETURN NEW;
+    END IF;
+
+    -- 2. Search for an APPROVED lead matching the new user's email
+    SELECT organization_id, full_name 
+    INTO v_org_id, v_full_name
     FROM public.onboarding_leads
-    WHERE admin_email = NEW.email AND status = 'APPROVED'
+    WHERE LOWER(admin_email) = LOWER(NEW.email) AND status = 'APPROVED'
     LIMIT 1;
 
-    -- If an approved lead is found, provision their profile
+    -- 3. If an approved lead is found, provision their profile
     IF v_org_id IS NOT NULL THEN
         INSERT INTO public.user_profiles (id, organization_id, role, full_name)
         VALUES (NEW.id, v_org_id, 'OFFICE_ADMIN', v_full_name);
         
-        -- Optional: We could also log the "Claimed" status back to the lead
-        -- UPDATE public.onboarding_leads SET updated_at = NOW() WHERE id = v_lead_id;
+        -- Optional: Log registration time back to the lead
+        UPDATE public.onboarding_leads SET updated_at = NOW() WHERE admin_email = NEW.email;
     END IF;
 
     RETURN NEW;
