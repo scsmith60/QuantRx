@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fhirService } from '../services/fhirService';
-import { TrendingUp, Users, DollarSign, Bell, Search, Database, Settings } from 'lucide-react';
+import { TrendingUp, Users, DollarSign, Bell, Search, Database, Settings, Activity } from 'lucide-react';
 import FoundMoneySidebar from './FoundMoneySidebar.tsx';
 import LiveYieldDashboard from './LiveYieldDashboard.tsx';
 import SpecialtyTabs from './SpecialtyTabs.tsx';
@@ -26,8 +26,7 @@ import { intelligenceService, type MarketAlert } from '../services/intelligenceS
 const PracticePortal: React.FC<{ organizationId?: string }> = ({ organizationId }) => {
   const [isSetupComplete, setIsSetupComplete] = useState<boolean | null>(null);
   const [patients, setPatients] = useState<any[]>([]);
-  const [totalFoundMoney] = useState(11328.00); 
-  const [activeSpecialty, setActiveSpecialty] = useState('oncology');
+  const [activeSpecialty, setActiveSpecialty] = useState('ONCOLOGY');
   const [userRole] = useState<'clinician' | 'admin' | 'cfo'>('admin');
   const [isSyncingCMS, setIsSyncingCMS] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<string>('');
@@ -40,6 +39,8 @@ const PracticePortal: React.FC<{ organizationId?: string }> = ({ organizationId 
   const [marketAlerts, setMarketAlerts] = useState<MarketAlert[]>([]);
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [globalFee, setGlobalFee] = useState(15);
+  const [totalGrossRecovery, setTotalGrossRecovery] = useState(0);
+  const [totalNetProfit, setTotalNetProfit] = useState(0);
   const [notifications, setNotifications] = useState<Notification[]>([
     { id: '1', type: 'system', title: 'ASP Pricing Synchronized', message: 'CMS Q3 2026 Average Sales Price data successfully merged.', timestamp: '2M AGO', isRead: false },
     { id: '2', type: 'clinical', title: 'New Optimization Detected', message: 'Jane Smith (Pat-002) is eligible for a +$2,057 switch.', timestamp: '15M AGO', isRead: false },
@@ -48,8 +49,6 @@ const PracticePortal: React.FC<{ organizationId?: string }> = ({ organizationId 
 
   useEffect(() => {
     const checkSetup = async () => {
-      // If no organizationId, we can't check setup status. 
-      // This is usually a loading state or a super admin view.
       if (!organizationId) {
         return;
       }
@@ -57,19 +56,22 @@ const PracticePortal: React.FC<{ organizationId?: string }> = ({ organizationId 
       console.log("[PracticePortal] Checking setup status for org:", organizationId);
       const { data, error } = await supabase
         .from('practice_config')
-        .select('is_setup_complete')
+        .select('is_setup_complete, specialty_focus')
         .eq('organization_id', organizationId)
         .maybeSingle();
       
       if (error) {
         console.error("[PracticePortal] Setup check failed:", error);
-        setIsSetupComplete(false); // Default to setup if error
+        setIsSetupComplete(false);
         return;
       }
 
       if (data) {
         console.log("[PracticePortal] Setup status found:", data.is_setup_complete);
         setIsSetupComplete(data.is_setup_complete);
+        if (data.specialty_focus) {
+          setActiveSpecialty(data.specialty_focus.toUpperCase());
+        }
       } else {
         console.log("[PracticePortal] No config found, entering setup mode.");
         setIsSetupComplete(false);
@@ -79,12 +81,12 @@ const PracticePortal: React.FC<{ organizationId?: string }> = ({ organizationId 
   }, [organizationId]);
 
   useEffect(() => {
-    if (isSetupComplete === false) return; // Wait for setup
+    if (isSetupComplete === false) return;
     const loadData = async () => {
       try {
         setIsSyncingCMS(true);
         const [allPatients, _cmsData, alerts] = await Promise.all([
-            fhirService.getMockSchedule(),
+            fhirService.getMockSchedule(organizationId),
             cmsService.fetchASPData(),
             intelligenceService.getMarketIntelligence()
         ]);
@@ -92,6 +94,12 @@ const PracticePortal: React.FC<{ organizationId?: string }> = ({ organizationId 
         setIsSyncingCMS(false);
         setLastSyncTime(new Date().toLocaleTimeString());
         setMarketAlerts(alerts);
+
+        const gross = allPatients.reduce((sum: number, p: any) => sum + (p.remittancePayout || 0), 0);
+        const net = gross * (1 - (globalFee / 100));
+        
+        setTotalGrossRecovery(gross);
+        setTotalNetProfit(net);
 
         const marketNotifications: Notification[] = alerts.map((a: MarketAlert) => ({
            id: a.id,
@@ -108,14 +116,13 @@ const PracticePortal: React.FC<{ organizationId?: string }> = ({ organizationId 
             return [...uniqueNew, ...prev];
         });
         
-        const filtered = (allPatients || []).filter((p: any) => p && p.specialty === activeSpecialty);
+        const filtered = (allPatients || []).filter((p: any) => p && p.specialty === activeSpecialty.toLowerCase());
         setPatients(filtered);
         
         const strategy = await yieldService.getOptimizationStrategy('J9035', filtered);
         setActiveStrategy(strategy || { type: 'NONE', title: '', description: '', potentialSavings: 0, strategyFee: 0, actionLabel: '' });
         setTotalStrategyFees(yieldService.getTotalStrategyFees());
 
-        // Fetch Dynamic Platform Fee
         const fee = await cmsService.getGlobalConfig('global_fee_percent', 15);
         setGlobalFee(fee);
       } catch (err) {
@@ -124,11 +131,9 @@ const PracticePortal: React.FC<{ organizationId?: string }> = ({ organizationId 
       }
     };
     loadData();
-  }, [activeSpecialty]);
+  }, [activeSpecialty, isSetupComplete, organizationId]);
 
-  const quantrxFee = totalFoundMoney * (globalFee / 100) + totalStrategyFees;
-  const practiceNet = totalFoundMoney - quantrxFee;
-  const potentialTotal = totalFoundMoney > 0 ? totalFoundMoney * 1.4 : 15000;
+  const potentialTotal = totalGrossRecovery > 0 ? totalGrossRecovery * 1.4 : 15000;
 
   if (isSetupComplete === false && organizationId) {
     return <PracticeSetupWizard organizationId={organizationId} onComplete={() => setIsSetupComplete(true)} />;
@@ -203,15 +208,28 @@ const PracticePortal: React.FC<{ organizationId?: string }> = ({ organizationId 
             >
               {isFocusMode ? 'Focus: ON' : 'Focus Mode'}
             </button>
-            <div className="text-right">
-              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest opacity-60">Gross Recovery</p>
-              <p className="text-xl font-mono font-bold text-white">${totalFoundMoney.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+            
+            <div className="flex items-end">
+                <div className="flex flex-col items-end">
+                    <span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest mb-1">Gross Recovery</span>
+                    <h2 className="text-2xl font-black text-white tracking-tighter" id="gross-recovery-val">
+                        ${totalGrossRecovery.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </h2>
+                </div>
+
+                <div className="w-px h-10 bg-white/10 mx-6" />
+
+                <div className="flex flex-col items-end">
+                    <div className="flex items-center space-x-2 mb-1">
+                        <Activity className="w-3 h-3 text-primary" />
+                        <span className="text-[10px] text-primary uppercase font-black tracking-widest">Practice Net Profit</span>
+                    </div>
+                    <h2 className="text-3xl font-black text-primary tracking-tighter shadow-primary/20 drop-shadow-2xl" id="net-profit-val">
+                        ${totalNetProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </h2>
+                </div>
             </div>
-            <div className="h-10 w-px bg-white/10" />
-            <div className="text-right">
-              <p className="text-[10px] text-primary uppercase tracking-widest font-bold">Practice Net Profit</p>
-              <p className="text-2xl font-mono font-bold text-primary [text-shadow:0_0_20px_rgba(57,255,20,0.3)]">${practiceNet.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
-            </div>
+
             <div className="relative ml-4">
               <button 
                 onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
@@ -260,7 +278,7 @@ const PracticePortal: React.FC<{ organizationId?: string }> = ({ organizationId 
                             )}
                         </div>
                         <div className="xl:col-span-1 space-y-8">
-                            {!isFocusMode && <RecoveryGauge recovered={totalFoundMoney} potential={potentialTotal} />}
+                            {!isFocusMode && <RecoveryGauge recovered={totalGrossRecovery} potential={potentialTotal} />}
                             <div className="glass-panel p-6 rounded-2xl border border-white/5 bg-gradient-to-br from-white/5 to-transparent">
                                 <h4 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-4">Market Intelligence</h4>
                                 <div className="space-y-4">
@@ -298,7 +316,7 @@ const PracticePortal: React.FC<{ organizationId?: string }> = ({ organizationId 
                 </div>
              )}
           </div>
-          <FoundMoneySidebar totalFound={totalFoundMoney} strategyFees={totalStrategyFees} patients={patients} />
+          <FoundMoneySidebar totalFound={totalGrossRecovery} strategyFees={totalStrategyFees} patients={patients} />
         </div>
       </main>
 

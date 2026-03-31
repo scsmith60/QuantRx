@@ -27,16 +27,20 @@ export const fhirService = {
   },
 
   /**
-   * Mock schedule data with synthetic PHI fields (representing Vault-level data)
+   * Mock schedule data seeded by organizationId to ensure practice isolation in the UI.
    */
-  async getMockSchedule() {
+  async getMockSchedule(organizationId?: string) {
     // Simulated network delay
     await new Promise(resolve => setTimeout(resolve, 800));
     
+    // Simple deterministic seed from organizationId
+    const seed = organizationId ? organizationId.split('-')[0] : 'default';
+    const prefix = seed.toUpperCase().substring(0, 4);
+
     return [
       { 
-        id: 'pat-001', 
-        name: "Patient (Vault-9921)", 
+        id: `pat-${seed}-001`, 
+        name: `Patient (${prefix}-01A)`, 
         dob: "1978-XX-XX",
         payer: "Medicare B", 
         orderHcpcs: "J2506", 
@@ -46,12 +50,12 @@ export const fhirService = {
         remittancePayout: 3100.00, 
         specialty: 'oncology',
         isWhiteBagged: false,
-        vaultId: 'v-9921',
+        vaultId: `${prefix}-01A`,
         isDeidentified: true
       },
       { 
-        id: 'pat-002', 
-        name: "Patient (Vault-8812)", 
+        id: `pat-${seed}-002`, 
+        name: `Patient (${prefix}-02B)`, 
         dob: "1985-XX-XX",
         payer: "Aetna PPO", 
         orderHcpcs: "J2506", 
@@ -61,12 +65,12 @@ export const fhirService = {
         remittancePayout: 2950.00,
         specialty: 'oncology',
         isWhiteBagged: false,
-        vaultId: 'v-8812',
+        vaultId: `${prefix}-02B`,
         isDeidentified: true
       },
       { 
-        id: 'pat-003', 
-        name: "Patient (Vault-7734)", 
+        id: `pat-${seed}-003`, 
+        name: `Patient (${prefix}-03C)`, 
         dob: "1962-XX-XX",
         payer: "UnitedHealth", 
         orderHcpcs: "J2506", 
@@ -76,12 +80,12 @@ export const fhirService = {
         remittancePayout: 3050.00,
         specialty: 'oncology',
         isWhiteBagged: true,
-        vaultId: 'v-7734',
+        vaultId: `${prefix}-03C`,
         isDeidentified: true
       },
       {
-        id: 'pat-004',
-        name: "Patient (Vault-6655)",
+        id: `pat-${seed}-004`,
+        name: `Patient (${prefix}-04D)`,
         dob: "1984-XX-XX",
         payer: "Medicare B",
         orderHcpcs: "J9035",
@@ -91,12 +95,12 @@ export const fhirService = {
         remittancePayout: 3200.00,
         specialty: 'oncology',
         isWhiteBagged: false,
-        vaultId: 'v-6655',
+        vaultId: `${prefix}-04D`,
         isDeidentified: true
       },
       {
-        id: 'pat-005',
-        name: "Patient (Vault-5544)",
+        id: `pat-${seed}-005`,
+        name: `Patient (${prefix}-05E)`,
         dob: "1964-XX-XX",
         payer: "Blue Shield",
         orderHcpcs: "J1745",
@@ -106,37 +110,7 @@ export const fhirService = {
         remittancePayout: 1820.00,
         specialty: 'gi',
         isWhiteBagged: true,
-        vaultId: 'v-5544',
-        isDeidentified: true
-      },
-      {
-        id: 'pat-006',
-        name: "Patient (Vault-4433)",
-        dob: "1972-XX-XX",
-        payer: "Aetna PPO",
-        orderHcpcs: "J9035",
-        orderNdc: "00439-0110-01", 
-        recHcpcs: "Q5126",
-        recNdc: "70121-1754-01",   
-        remittancePayout: 3150.00,
-        specialty: 'oncology',
-        isWhiteBagged: false,
-        vaultId: 'v-4433',
-        isDeidentified: true
-      },
-      {
-        id: 'pat-007',
-        name: "Patient (Vault-3322)",
-        dob: "1958-XX-XX",
-        payer: "Aetna PPO",
-        orderHcpcs: "Q5126",
-        orderNdc: "70121-1754-01", 
-        recHcpcs: "Q5126",
-        recNdc: "70121-1754-01",   
-        remittancePayout: 680.00,
-        specialty: 'oncology',
-        isWhiteBagged: false,
-        vaultId: 'v-3322',
+        vaultId: `${prefix}-05E`,
         isDeidentified: true
       }
     ];
