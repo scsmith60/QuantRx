@@ -48,33 +48,34 @@ const PracticePortal: React.FC<{ organizationId?: string }> = ({ organizationId 
 
   useEffect(() => {
     const checkSetup = async () => {
-      // If no organizationId, assume we are a Super Admin or in a global state
+      // If no organizationId, we can't check setup status. 
+      // This is usually a loading state or a super admin view.
       if (!organizationId) {
-        setIsSetupComplete(true);
         return;
       }
 
+      console.log("[PracticePortal] Checking setup status for org:", organizationId);
       const { data, error } = await supabase
         .from('practice_config')
         .select('is_setup_complete')
         .eq('organization_id', organizationId)
         .maybeSingle();
       
-      if (!error && data) {
+      if (error) {
+        console.error("[PracticePortal] Setup check failed:", error);
+        setIsSetupComplete(false); // Default to setup if error
+        return;
+      }
+
+      if (data) {
+        console.log("[PracticePortal] Setup status found:", data.is_setup_complete);
         setIsSetupComplete(data.is_setup_complete);
       } else {
-        // If no config found, it needs setup
+        console.log("[PracticePortal] No config found, entering setup mode.");
         setIsSetupComplete(false);
       }
     };
     checkSetup();
-
-    // Safety timeout: Never spin for more than 5 seconds
-    const safety = setTimeout(() => {
-      if (isSetupComplete === null) setIsSetupComplete(true);
-    }, 5000);
-
-    return () => clearTimeout(safety);
   }, [organizationId]);
 
   useEffect(() => {
