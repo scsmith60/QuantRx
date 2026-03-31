@@ -213,38 +213,36 @@ class CMSService {
         return result;
     }
 
-    async getVaultContract(ndc: string): Promise<any | null> {
-        const cacheKey = `contract_${ndc}`;
+    async getVaultContract(ndc: string, organizationId?: string): Promise<any | null> {
+        const cacheKey = `contract_${ndc}_${organizationId || 'global'}`;
         if (this._contractCache.has(cacheKey)) return this._contractCache.get(cacheKey);
         if (this._activeRequests.has(cacheKey)) return this._activeRequests.get(cacheKey);
 
         const request = (async () => {
             try {
-                // Try quant_vault schema first (Requires 'quant_vault' to be exposed in Supabase Dashboard)
-                const { data: d_vault, error: e_vault } = await supabase.schema('quant_vault').from('contracts').select('*').eq('ndc_code', ndc).maybeSingle();
+                // Point to public.contracts (New Infrastructure Sync)
+                let query = supabase.from('contracts').select('*').eq('ndc_code', ndc);
                 
-                // If 406 Not Acceptable, it means the schema is not exposed to the API
-                if (e_vault && e_vault.code === '406') {
-                    console.warn("[CMSService] Schema 'quant_vault' not exposed to API. Using public fallback.");
-                } else if (d_vault) {
-                    this._contractCache.set(cacheKey, d_vault);
-                    return d_vault;
+                // If org-specific contract exists, prefer it
+                if (organizationId) {
+                    query = query.eq('organization_id', organizationId);
+                } else {
+                    query = query.is('organization_id', null);
                 }
 
-                // Try public schema as fallback
-                const { data: d1 } = await supabase.from('contracts').select('*').eq('ndc_code', ndc).maybeSingle();
+                const { data: d1, error } = await query.maybeSingle();
+                
+                if (error) {
+                    console.error("[CMSService] Contract fetch error:", error.message);
+                    throw error;
+                }
+
                 if (d1) {
                     this._contractCache.set(cacheKey, d1);
                     return d1;
                 }
-
-                const { data: d2 } = await supabase.from('contracts').select('*').eq('ndc', ndc).maybeSingle();
-                if (d2) {
-                    this._contractCache.set(cacheKey, d2);
-                    return d2;
-                }
             } catch (e) {
-                console.warn("[CMSService] Contract lookup bypassed.");
+                console.warn("[CMSService] Contract lookup bypassed, using mock.");
             }
 
             const mockContracts: Record<string, any> = {

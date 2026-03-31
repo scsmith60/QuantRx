@@ -25,9 +25,12 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     setLoading(true);
     setError(null);
 
-    if (mode === 'login') {
+    const trimmedEmail = email.trim();
+    const cleanMode = mode;
+
+    if (cleanMode === 'login') {
       const { error: authError } = await supabase.auth.signInWithPassword({
-        email,
+        email: trimmedEmail,
         password,
       });
       if (authError) {
@@ -38,27 +41,32 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       }
     } else {
       // 1. Pre-registration Check
-      const { data: status, error: rpcError } = await supabase.rpc('check_lead_status', { p_email: email });
+      console.log('Verifying status for:', trimmedEmail);
+      const { data: status, error: rpcError } = await supabase.rpc('check_lead_status', { p_email: trimmedEmail });
       
       if (rpcError) {
+        console.error('RPC Error:', rpcError);
         setError("Security check failed. Please contact support.");
         setLoading(false);
         return;
       }
 
+      console.log('Status found:', status);
       if (status !== 'APPROVED') {
-        setError(status === 'PENDING' ? "Your request is still in the queue. Please check back later." : "Registration not authorized. Please request access first.");
+        setError(status === 'PENDING' ? "Your request is still in the queue. Please check back later." : `Email address "${trimmedEmail}" is invalid for vault access.`);
         setLoading(false);
         return;
       }
 
       // 2. Perform actual Sign Up
+      console.log('Executing Sign Up...');
       const { error: signUpError } = await supabase.auth.signUp({
-        email,
+        email: trimmedEmail,
         password,
       });
 
       if (signUpError) {
+        console.error('Sign Up Error:', signUpError);
         setError(signUpError.message);
         setLoading(false);
       } else {

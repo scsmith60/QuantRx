@@ -35,11 +35,26 @@ const PracticeSetupWizard: React.FC<PracticeSetupWizardProps> = ({ organizationI
             .eq('organization_id', organizationId);
 
         if (error) {
-            alert(`Setup Error: ${error.message}`);
-            setLoading(false);
-        } else {
-            onComplete();
+            console.error("[Wizard] Setup update failed:", error);
+            // Fallback: If update fails because row doesn't exist, try insert
+            const { error: insertError } = await supabase
+                .from('practice_config')
+                .insert({
+                    organization_id: organizationId,
+                    npi_number: formData.npi,
+                    ehr_system: formData.ehr,
+                    specialty_focus: formData.specialty,
+                    is_setup_complete: true
+                });
+            
+            if (insertError) {
+                alert(`Setup Error: ${insertError.message}`);
+                setLoading(false);
+                return;
+            }
         }
+        
+        onComplete();
     };
 
     const steps = [

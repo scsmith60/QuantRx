@@ -115,15 +115,23 @@ class YieldService {
         const quantFee = netLift * (feePercent / 100);
 
         // 1. Record the Attribution (Transaction)
+        const { data: profile } = await supabase.from('user_profiles').select('organization_id').eq('id', user.id).maybeSingle();
+        const organizationId = profile?.organization_id;
+
+        if (!organizationId) {
+            console.error("[Yield] No organization link found for user.");
+            return;
+        }
+
         const { error: attributionError } = await supabase
-            .from('quant_vault.attribution')
+            .from('attribution')
             .insert({
-                practice_id: user.id,
+                organization_id: organizationId,
                 patient_id: patientId, 
                 ndc_ordered: fromHcpcs,
                 ndc_recommended: toHcpcs,
                 net_profit_recovered: netLift,
-                quant_fee_15_percent: quantFee,
+                quant_fee_collected: quantFee,
                 status: 'Detected'
             });
 
@@ -134,8 +142,9 @@ class YieldService {
         // 2. Manage the Optimization Chain (A -> B -> C)
         // Check if this patient already has an active optimization for this baseline
         const { data: existing } = await supabase
-            .from('quant_vault.managed_therapies')
+            .from('managed_therapies')
             .select('*')
+            .eq('organization_id', organizationId)
             .eq('patient_id_hash', patientId)
             .eq('original_ndc', fromHcpcs)
             .eq('is_active', true)
@@ -145,7 +154,7 @@ class YieldService {
             // RE-OPTIMIZATION: The old "Recommended" now becomes the "New Baseline"
             // We optimized A -> B. Now we are optimizing B -> C.
             await supabase
-                .from('quant_vault.managed_therapies')
+                .from('managed_therapies')
                 .update({
                     baseline_ndc: existing.hcpcs_recommended, // Biosim A is now the baseline
                     hcpcs_recommended: toHcpcs,             // Biosim B is the new target
@@ -156,9 +165,9 @@ class YieldService {
         } else {
             // NEW ENROLLMENT (First Switch)
             await supabase
-                .from('quant_vault.managed_therapies')
+                .from('managed_therapies')
                 .upsert({
-                    practice_id: user.id,
+                    organization_id: organizationId,
                     patient_id_hash: patientId,
                     hcpcs_recommended: toHcpcs,
                     baseline_ndc: fromHcpcs, // Original Brand
