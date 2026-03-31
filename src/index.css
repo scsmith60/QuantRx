@@ -95,8 +95,8 @@
 
 /* Glassmorphism & Login Effects */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(25px) saturate(150%);
+  background: rgba(10, 10, 12, 0.85); /* Darker, more opaque background */
+  backdrop-filter: blur(30px) saturate(150%);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -112,9 +112,10 @@
   left: -50%;
   width: 200%;
   height: 200%;
-  background: conic-gradient(transparent, #39FF14, transparent 30%);
-  animation: rotate-border 4s linear infinite;
+  background: conic-gradient(transparent, rgba(57, 255, 20, 0.4), transparent 15%); /* Narrower, softer beam */
+  animation: rotate-border 6s linear infinite; /* Slightly slower for less distraction */
   z-index: 0;
+  filter: blur(40px); /* Soften the edges significantly */
 }
 
 @keyframes rotate-border {

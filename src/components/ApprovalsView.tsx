@@ -52,7 +52,9 @@ const ApprovalsView: React.FC = () => {
     };
 
     const handleResendInvite = (lead: OnboardingLead) => {
-        alert(`Invitation link re-sent to ${lead.admin_email}`);
+        const message = `Welcome to QuantRx! Your Vault for ${lead.practice_name} is ready. Please register your administrative account at https://quantrxhealth.com using this email (${lead.admin_email}) to claim your access.`;
+        navigator.clipboard.writeText(message);
+        alert(`Invitation link copied to clipboard for ${lead.admin_email}`);
     };
 
     if (loading) return (

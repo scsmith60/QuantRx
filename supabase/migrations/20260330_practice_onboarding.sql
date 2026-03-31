@@ -75,3 +75,14 @@ BEGIN
     RETURN jsonb_build_object('success', true, 'org_id', v_org_id);
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 5. Public Status Check (For Registration Validation)
+CREATE OR REPLACE FUNCTION public.check_lead_status(p_email TEXT)
+RETURNS TEXT AS $$
+DECLARE
+    v_status TEXT;
+BEGIN
+    SELECT status INTO v_status FROM public.onboarding_leads WHERE admin_email = p_email LIMIT 1;
+    RETURN COALESCE(v_status, 'NOT_FOUND');
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
