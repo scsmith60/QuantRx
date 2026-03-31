@@ -48,7 +48,12 @@ const PracticePortal: React.FC<{ organizationId?: string }> = ({ organizationId 
 
   useEffect(() => {
     const checkSetup = async () => {
-      if (!organizationId) return;
+      // If no organizationId, assume we are a Super Admin or in a global state
+      if (!organizationId) {
+        setIsSetupComplete(true);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('practice_config')
         .select('is_setup_complete')
@@ -63,6 +68,13 @@ const PracticePortal: React.FC<{ organizationId?: string }> = ({ organizationId 
       }
     };
     checkSetup();
+
+    // Safety timeout: Never spin for more than 5 seconds
+    const safety = setTimeout(() => {
+      if (isSetupComplete === null) setIsSetupComplete(true);
+    }, 5000);
+
+    return () => clearTimeout(safety);
   }, [organizationId]);
 
   useEffect(() => {
