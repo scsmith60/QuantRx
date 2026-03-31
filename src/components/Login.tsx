@@ -141,9 +141,25 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         >
           <div className="relative z-10 w-full h-full glass-panel rounded-3xl p-10 flex flex-col">
             
-            <div className="flex items-center space-x-2 mb-10">
+            <div className="flex items-center space-x-2 mb-8">
                 <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-primary-foreground font-bold text-xl">Q</div>
-                <h1 className="text-2xl font-bold tracking-tight text-white">QuantRX <span className="text-primary">{mode === 'login' ? 'Vault' : 'Registration'}</span></h1>
+                <h1 className="text-2xl font-bold tracking-tight text-white">QuantRX <span className="text-primary">Vault</span></h1>
+            </div>
+
+            {/* Mode Switcher Tabs */}
+            <div className="flex p-1 bg-white/5 rounded-xl mb-8 border border-white/10">
+              <button 
+                onClick={() => setMode('login')}
+                className={`flex-1 py-2 px-4 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${mode === 'login' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:text-white'}`}
+              >
+                Sign In
+              </button>
+              <button 
+                onClick={() => setMode('register')}
+                className={`flex-1 py-2 px-4 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${mode === 'register' ? 'bg-[#00F5FF] text-black shadow-lg' : 'text-muted-foreground hover:text-white'}`}
+              >
+                Claim Vault
+              </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
