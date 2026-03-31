@@ -11,6 +11,8 @@ import ASPLookup from './ASPLookup.tsx';
 import DistributorIngester from './DistributorIngester.tsx';
 import DataCenterView from './DataCenterView.tsx';
 import RemittanceIngester from './RemittanceIngester.tsx';
+import PracticeSetupWizard from './PracticeSetupWizard.tsx';
+import { supabase } from '../services/cmsService';
 
 import { yieldService } from '../services/yieldService';
 import type { StrategyOption } from '../services/yieldService';
@@ -21,7 +23,8 @@ import type { Notification } from './NotificationsPopover.tsx';
 import TheMorningList from './TheMorningList.tsx';
 import { intelligenceService, type MarketAlert } from '../services/intelligenceService';
 
-const PracticePortal: React.FC = () => {
+const PracticePortal: React.FC<{ organizationId?: string }> = ({ organizationId }) => {
+  const [isSetupComplete, setIsSetupComplete] = useState<boolean | null>(null);
   const [patients, setPatients] = useState<any[]>([]);
   const [totalFoundMoney] = useState(11328.00); 
   const [activeSpecialty, setActiveSpecialty] = useState('oncology');
@@ -44,6 +47,26 @@ const PracticePortal: React.FC = () => {
   ]);
 
   useEffect(() => {
+    const checkSetup = async () => {
+      if (!organizationId) return;
+      const { data, error } = await supabase
+        .from('practice_config')
+        .select('is_setup_complete')
+        .eq('organization_id', organizationId)
+        .maybeSingle();
+      
+      if (!error && data) {
+        setIsSetupComplete(data.is_setup_complete);
+      } else {
+        // If no config found, it needs setup
+        setIsSetupComplete(false);
+      }
+    };
+    checkSetup();
+  }, [organizationId]);
+
+  useEffect(() => {
+    if (isSetupComplete === false) return; // Wait for setup
     const loadData = async () => {
       try {
         setIsSyncingCMS(true);
@@ -93,6 +116,21 @@ const PracticePortal: React.FC = () => {
   const quantrxFee = totalFoundMoney * (globalFee / 100) + totalStrategyFees;
   const practiceNet = totalFoundMoney - quantrxFee;
   const potentialTotal = totalFoundMoney > 0 ? totalFoundMoney * 1.4 : 15000;
+
+  if (isSetupComplete === false && organizationId) {
+    return <PracticeSetupWizard organizationId={organizationId} onComplete={() => setIsSetupComplete(true)} />;
+  }
+
+  if (isSetupComplete === null) {
+      return (
+          <div className="h-screen w-full bg-[#020204] flex items-center justify-center">
+              <div className="flex flex-col items-center space-y-4">
+                  <div className="w-12 h-12 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  <span className="text-[10px] font-mono text-primary uppercase tracking-[0.3em]">Synching Vault Permissions...</span>
+              </div>
+          </div>
+      );
+  }
 
   return (
     <div className="h-screen bg-background text-foreground flex overflow-hidden font-sans">

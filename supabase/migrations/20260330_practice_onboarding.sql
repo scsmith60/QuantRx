@@ -51,10 +51,23 @@ BEGIN
     VALUES (v_lead.practice_name, 'PRACTICE')
     RETURNING id INTO v_org_id;
 
-    -- 3. We cannot create the auth.users here (handled by Supabase Auth),
-    -- but we can update the user_profiles if the user has already signed up.
-    -- For now, the Admin Console will create the org and mark the lead as APPROVED.
-    
+    -- 3. Initialize Practice Config
+    INSERT INTO public.practice_config (organization_id, npi_number)
+    VALUES (v_org_id, v_lead.npi_number);
+
+    -- 4. Check if the user already exists in auth.users and link them
+    -- We search user_profiles by email (if we have that mapping elsewhere) or 
+    -- we can try to find an auth.user with that email.
+    -- For simplicity in this migration, we'll try to update any profile that matches the email.
+    UPDATE public.user_profiles 
+    SET organization_id = v_org_id, 
+        role = 'OFFICE_ADMIN',
+        full_name = v_lead.full_name
+    WHERE id IN (
+        SELECT id FROM auth.users WHERE email = v_lead.admin_email
+    );
+
+    -- 5. Mark lead as APPROVED
     UPDATE public.onboarding_leads 
     SET status = 'APPROVED', updated_at = NOW()
     WHERE id = lead_id;

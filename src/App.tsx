@@ -213,7 +213,7 @@ function App() {
           </div>
 
           <ErrorBoundary>
-            {view === 'practice' ? <PracticePortal /> : <AdminConsole />}
+            {view === 'practice' ? <PracticePortal organizationId={userProfile.organization_id} /> : <AdminConsole />}
           </ErrorBoundary>
         </div>
       )}
